@@ -1,0 +1,1837 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>🎯 Reflexions-Radar Mobile v5.4.7-M</title>
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --glass-bg: rgba(255,255,255,0.1);
+            --glass-border: rgba(255,255,255,0.2);
+            --stress-0: #9E9E9E;
+            --stress-1: #4CAF50;
+            --stress-2: #8BC34A;
+            --stress-3: #FFC107;
+            --stress-4: #FF9800;
+            --stress-5: #F44336;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { 
+            background: var(--primary-gradient); 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow: hidden; 
+            height: 100vh; 
+            width: 100vw;
+            position: fixed;
+            user-select: none; 
+            -webkit-user-select: none;
+            touch-action: none;
+        }
+        
+        /* HEADER */
+        .header { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            right: 0; 
+            height: 60px; 
+            background: rgba(0,0,0,0.9); 
+            backdrop-filter: blur(20px); 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between;
+            padding: 0 15px; 
+            z-index: 1000; 
+            border-bottom: 2px solid var(--glass-border); 
+            box-shadow: 0 2px 20px rgba(0,0,0,0.5); 
+        }
+        .header h1 { 
+            color: white; 
+            font-size: 18px; 
+            font-weight: 700;
+            flex: 1;
+        }
+        .header-stats { 
+            display: flex; 
+            gap: 8px; 
+            font-size: 11px;
+        }
+        .stat { 
+            color: white; 
+            background: rgba(0,0,0,0.5); 
+            padding: 4px 8px; 
+            border-radius: 8px; 
+            font-weight: 600; 
+        }
+        
+        /* BOTTOM TOOLBAR */
+        .bottom-toolbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            background: rgba(0,0,0,0.95);
+            backdrop-filter: blur(20px);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 10px;
+            z-index: 1000;
+            border-top: 2px solid var(--glass-border);
+            box-shadow: 0 -2px 20px rgba(0,0,0,0.5);
+        }
+        .tool-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-width: 60px;
+            min-height: 50px;
+            color: white;
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+        }
+        .tool-btn:active {
+            background: rgba(255,255,255,0.3);
+            transform: scale(0.95);
+        }
+        .tool-btn.active {
+            background: rgba(76,175,80,0.3);
+            border-color: #4CAF50;
+        }
+        .tool-label {
+            font-size: 9px;
+            margin-top: 4px;
+            font-weight: 600;
+        }
+        
+        /* CANVAS */
+        #canvas { 
+            position: absolute; 
+            top: 60px; 
+            left: 0; 
+            right: 0; 
+            bottom: 70px; 
+            overflow: hidden; 
+            background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.05) 0%, transparent 70%); 
+            touch-action: none;
+        }
+        #canvasContent { 
+            transform-origin: 0 0; 
+            position: relative; 
+            width: 100%; 
+            height: 100%; 
+        }
+        #connectionsSvg { 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            pointer-events: none; 
+            z-index: 2; 
+        }
+        #connectionsSvg line { 
+            stroke-width: 5; 
+            stroke-linecap: round; 
+            opacity: 0.85; 
+        }
+        
+        /* CONNECTION EMOJI */
+        .connection-emoji { 
+            position: absolute; 
+            font-size: 28px; 
+            background: linear-gradient(145deg, rgba(0,0,0,0.95), rgba(0,0,0,0.85)); 
+            border-radius: 50%; 
+            width: 50px; 
+            height: 50px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            z-index: 5; 
+            transform: translate(-50%, -50%); 
+            border: 3px solid rgba(255,255,255,0.6); 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5); 
+            pointer-events: auto; 
+        }
+        
+        /* MEMBERS */
+        .member { 
+            position: absolute; 
+            width: 110px; 
+            height: 110px; 
+            border-radius: 50%; 
+            color: white; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 13px; 
+            text-align: center; 
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4); 
+            user-select: none; 
+            touch-action: none; 
+            border: 3px solid rgba(255,255,255,0.3); 
+            backdrop-filter: blur(5px); 
+            z-index: 10; 
+            transition: transform 0.2s ease;
+        }
+        .member.dragging { 
+            transform: scale(1.15); 
+            z-index: 50; 
+        }
+        .member.self { 
+            border-color: #FFD700; 
+            box-shadow: 0 0 20px rgba(255,215,0,0.6), 0 6px 20px rgba(0,0,0,0.4); 
+        }
+        .member-name { 
+            font-weight: 700; 
+            margin-bottom: 4px; 
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8); 
+            font-size: 12px; 
+            padding: 0 5px; 
+        }
+        .stress-indicator { 
+            background: rgba(0,0,0,0.7); 
+            padding: 4px 8px; 
+            border-radius: 10px; 
+            font-size: 11px; 
+            border: 1px solid rgba(255,255,255,0.4); 
+            font-weight: 600; 
+            min-width: 50px;
+            min-height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .notes-badge { 
+            position: absolute; 
+            top: -5px; 
+            right: -5px; 
+            width: 30px; 
+            height: 30px; 
+            background: rgba(255,193,7,0.9); 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 18px; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3); 
+            border: 2px solid rgba(255,255,255,0.8); 
+            z-index: 15; 
+        }
+        .stress-0 { background: linear-gradient(135deg, #9E9E9E, #757575) !important; }
+        .stress-1 { background: linear-gradient(135deg, #4CAF50, #388E3C) !important; }
+        .stress-2 { background: linear-gradient(135deg, #8BC34A, #689F38) !important; }
+        .stress-3 { background: linear-gradient(135deg, #FFC107, #FFA000) !important; }
+        .stress-4 { background: linear-gradient(135deg, #FF9800, #F57C00) !important; }
+        .stress-5 { background: linear-gradient(135deg, #F44336, #D32F2F) !important; }
+        
+        /* DRAWER */
+        .drawer-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 1500;
+            display: none;
+        }
+        .drawer {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            max-height: 80vh;
+            background: rgba(0,0,0,0.95);
+            backdrop-filter: blur(25px);
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            padding: 20px;
+            z-index: 1600;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+            overflow-y: auto;
+            color: white;
+        }
+        .drawer.open {
+            transform: translateY(0);
+        }
+        .drawer-handle {
+            width: 40px;
+            height: 4px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 2px;
+            margin: 0 auto 20px;
+        }
+        .drawer h3 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+        
+        /* BUTTONS */
+        .btn {
+            background: var(--glass-bg);
+            border: 2px solid var(--glass-border);
+            color: white;
+            padding: 14px 20px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            width: 100%;
+            margin: 8px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 50px;
+            transition: all 0.2s ease;
+        }
+        .btn:active {
+            background: rgba(255,255,255,0.2);
+            transform: scale(0.98);
+        }
+        .btn:disabled {
+            opacity: 0.5;
+        }
+        
+        /* CONTEXT MENU */
+        .context-menu {
+            position: fixed;
+            left: 10px;
+            right: 10px;
+            bottom: 80px;
+            background: rgba(20,20,20,0.98);
+            backdrop-filter: blur(25px);
+            border-radius: 15px;
+            padding: 10px;
+            z-index: 1500;
+            display: none;
+            border: 2px solid var(--glass-border);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+        }
+        .context-item {
+            padding: 16px;
+            color: white;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 500;
+            border-radius: 10px;
+            min-height: 50px;
+            transition: background 0.2s ease;
+        }
+        .context-item:active {
+            background: rgba(255,255,255,0.1);
+        }
+        
+        /* MODAL */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+        .modal {
+            background: rgba(0,0,0,0.95);
+            backdrop-filter: blur(25px);
+            border: 2px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 25px;
+            width: 100%;
+            max-width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
+            color: white;
+        }
+        .modal h3 {
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 22px;
+        }
+        
+        /* INPUTS */
+        input, textarea, select {
+            width: 100%;
+            padding: 14px;
+            margin: 8px 0;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid var(--glass-border);
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+            font-family: inherit;
+        }
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #4CAF50;
+            background: rgba(255,255,255,0.15);
+        }
+        input::placeholder, textarea::placeholder {
+            color: rgba(255,255,255,0.6);
+        }
+        select option {
+            background: #333;
+            color: white;
+        }
+        
+        /* EMOJI GRID */
+        .emoji-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .emoji-option {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 12px;
+            background: var(--glass-bg);
+            border: 2px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            min-height: 60px;
+        }
+        .emoji-option:active {
+            background: rgba(255,255,255,0.2);
+            transform: scale(0.95);
+        }
+        
+        /* COLOR OPTIONS */
+        .color-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .color-option {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 16px;
+            background: rgba(255,255,255,0.05);
+            border: 2px solid var(--glass-border);
+            border-radius: 10px;
+            min-height: 60px;
+        }
+        .color-option:active {
+            background: rgba(255,255,255,0.15);
+        }
+        .color-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.3);
+            flex-shrink: 0;
+        }
+        .color-label {
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            flex: 1;
+        }
+        
+        /* SCALING BAR */
+        .scaling-bar {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin: 20px 0;
+        }
+        .scaling-btn {
+            aspect-ratio: 1;
+            padding: 0;
+            font-size: 18px;
+            border-radius: 10px;
+            min-height: 50px;
+        }
+        .scaling-btn.active {
+            background: rgba(76,175,80,0.5);
+            border-color: #4CAF50;
+            transform: scale(1.05);
+        }
+        .scaling-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+        
+        /* NOTIFICATION */
+        .notification {
+            position: fixed;
+            top: 70px;
+            left: 10px;
+            right: 10px;
+            background: rgba(76,175,80,0.95);
+            color: white;
+            padding: 16px 20px;
+            border-radius: 12px;
+            z-index: 3000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            font-weight: 600;
+            font-size: 14px;
+            text-align: center;
+            animation: slideDown 0.3s ease;
+        }
+        @keyframes slideDown {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        /* REFLEXION */
+        .reflexion-item {
+            background: rgba(255,255,255,0.05);
+            border-left: 4px solid #4CAF50;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 12px;
+        }
+        .reflexion-category {
+            font-size: 12px;
+            font-weight: 600;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+        .reflexion-question {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+        .reflexion-answer {
+            font-size: 13px;
+            font-style: italic;
+            opacity: 0.9;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+        .reflexion-timestamp {
+            font-size: 11px;
+            opacity: 0.6;
+        }
+        
+        /* SESSION ITEM */
+        .session-item {
+            background: rgba(255,255,255,0.05);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid var(--glass-border);
+        }
+        .session-info {
+            flex: 1;
+        }
+        .session-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        .session-timestamp {
+            font-size: 12px;
+            opacity: 0.7;
+        }
+        
+        /* QUESTION TEXT */
+        .question-text {
+            background: rgba(255,255,255,0.05);
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            margin-bottom: 15px;
+            line-height: 1.6;
+            font-size: 15px;
+        }
+        
+        .mb-10 { margin-bottom: 10px; }
+        .hidden { display: none !important; }
+        
+        /* SAVE INDICATOR */
+        .save-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(76,175,80,0.9);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        .save-indicator.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <div class="header">
+        <h1>🎯 Reflexions-Radar</h1>
+        <div class="header-stats">
+            <div class="stat">👥 <span id="memberCount">0</span></div>
+            <div class="stat">🔗 <span id="connectionCount">0</span></div>
+        </div>
+    </div>
+    
+    <!-- CANVAS -->
+    <div id="canvas">
+        <div id="canvasContent">
+            <svg id="connectionsSvg"></svg>
+        </div>
+    </div>
+    
+    <!-- BOTTOM TOOLBAR -->
+    <div class="bottom-toolbar">
+        <div class="tool-btn" id="btnAddMember">
+            <div>➕</div>
+            <div class="tool-label">Person</div>
+        </div>
+        <div class="tool-btn" id="btnAddConnection">
+            <div>🔗</div>
+            <div class="tool-label">Verbindung</div>
+        </div>
+        <div class="tool-btn" id="btnReflexion">
+            <div>💭</div>
+            <div class="tool-label">Reflexion</div>
+        </div>
+        <div class="tool-btn" id="btnMenu">
+            <div>☰</div>
+            <div class="tool-label">Menü</div>
+        </div>
+    </div>
+    
+    <!-- MAIN MENU DRAWER -->
+    <div class="drawer-overlay" id="menuOverlay"></div>
+    <div class="drawer" id="menuDrawer">
+        <div class="drawer-handle"></div>
+        <h3>📋 Menü</h3>
+        <button class="btn" id="btnUndo" disabled>↶ Rückgängig</button>
+        <button class="btn" id="btnRedo" disabled>↷ Wiederholen</button>
+        <button class="btn" id="btnShowReflexions">📝 Reflexions-Historie</button>
+        <button class="btn" id="btnShowTimeline">📊 Timeline</button>
+        <button class="btn" id="btnShowSessions">📁 Sessions</button>
+        <button class="btn" id="btnShowStats">📈 Statistiken</button>
+        <button class="btn" id="btnReset">🔄 Reset</button>
+        <button class="btn" id="btnCloseMenu">✕ Schließen</button>
+    </div>
+    
+    <!-- STATS DRAWER -->
+    <div class="drawer" id="statsDrawer">
+        <div class="drawer-handle"></div>
+        <h3>📈 Statistiken</h3>
+        <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 15px; margin-bottom: 15px;">
+            <div style="font-size: 48px; text-align: center; margin-bottom: 10px;" id="avgStressDisplay">0.0</div>
+            <div style="text-align: center; opacity: 0.7; margin-bottom: 20px;">⚡ Durchschnittlicher Stress</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px;">
+                <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; text-align: center;">
+                    <div style="font-size: 32px; color: #4CAF50;" id="statMembers">0</div>
+                    <div style="font-size: 12px; opacity: 0.7; margin-top: 5px;">👥 Personen</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; text-align: center;">
+                    <div style="font-size: 32px; color: #2196F3;" id="statConnections">0</div>
+                    <div style="font-size: 12px; opacity: 0.7; margin-top: 5px;">🔗 Verbindungen</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; text-align: center;">
+                    <div style="font-size: 32px; color: #FF9800;" id="statReflexions">0</div>
+                    <div style="font-size: 12px; opacity: 0.7; margin-top: 5px;">💭 Reflexionen</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; text-align: center;">
+                    <div style="font-size: 32px; color: #9C27B0;" id="statSnapshots">0</div>
+                    <div style="font-size: 12px; opacity: 0.7; margin-top: 5px;">📷 Snapshots</div>
+                </div>
+            </div>
+        </div>
+        <button class="btn" id="btnCloseStats">✕ Schließen</button>
+    </div>
+    
+    <!-- REFLEXIONS DRAWER -->
+    <div class="drawer" id="reflexionsDrawer">
+        <div class="drawer-handle"></div>
+        <h3>💭 Reflexions-Historie</h3>
+        <div id="reflexionsList">
+            <p style="text-align: center; opacity: 0.7; padding: 40px 20px;">Noch keine Reflexionen</p>
+        </div>
+        <button class="btn" id="btnCloseReflexions">✕ Schließen</button>
+    </div>
+    
+    <!-- CONTEXT MENUS -->
+    <div class="context-menu" id="memberContextMenu">
+        <div class="context-item" data-action="renameMember">✏️ Umbenennen</div>
+        <div class="context-item" data-action="changeStress">⚡ Stress ändern</div>
+        <div class="context-item" data-action="markAsSelf">⭐ Als mich markieren</div>
+        <div class="context-item" data-action="editNotes">📝 Notizen bearbeiten</div>
+        <div class="context-item" data-action="deleteMember">🗑️ Löschen</div>
+    </div>
+    
+    <div class="context-menu" id="connectionContextMenu">
+        <div class="context-item" data-action="changeEmoji">😀 Emoji ändern</div>
+        <div class="context-item" data-action="changeColor">🎨 Farbe ändern</div>
+        <div class="context-item" data-action="deleteConnection">🗑️ Löschen</div>
+    </div>
+    
+    <!-- MODALS -->
+    <div class="modal-overlay" id="reflexionModal">
+        <div class="modal" style="position: relative;">
+            <div class="save-indicator" id="saveIndicator">✓ Gespeichert</div>
+            <h3 id="reflexionTitle">💭 Systemische Reflexion</h3>
+            <div id="reflexionCategory" class="mb-10" style="text-align: center; font-size: 14px; opacity: 0.8;"></div>
+            <div id="reflexionQuestion" class="question-text"></div>
+            <div id="reflexionInput"></div>
+            <button class="btn" id="btnNextReflexion">➡️ Nächste Frage</button>
+            <button class="btn" id="btnOtherCategory">🔀 Andere Kategorie</button>
+            <button class="btn" id="btnCloseReflexionModal">✓ Fertig</button>
+        </div>
+    </div>
+    
+    <div class="modal-overlay" id="simpleInputModal">
+        <div class="modal">
+            <h3 id="simpleInputTitle">Eingabe</h3>
+            <input type="text" id="simpleInputField" placeholder="">
+            <textarea id="simpleTextareaField" rows="4" placeholder="" style="display:none;"></textarea>
+            <button class="btn" id="btnSimpleInputOK">✓ OK</button>
+            <button class="btn" id="btnSimpleInputCancel">✕ Abbrechen</button>
+        </div>
+    </div>
+    
+    <div class="modal-overlay" id="connectionModal">
+        <div class="modal">
+            <h3>🔗 Verbindung erstellen</h3>
+            <p id="connectionPromptText" style="margin-bottom: 15px; text-align: center;">Wähle zwei Personen:</p>
+            <select id="connectionFrom"><option value="">-- Von Person --</option></select>
+            <select id="connectionTo"><option value="">-- Zu Person --</option></select>
+            <button class="btn" id="btnCreateConnection">🔗 Erstellen</button>
+            <button class="btn" id="btnCancelConnection">✕ Abbrechen</button>
+        </div>
+    </div>
+    
+    <div class="modal-overlay" id="stressModal">
+        <div class="modal">
+            <h3>⚡ Stress-Level ändern</h3>
+            <p id="stressMemberName" style="margin-bottom: 15px; text-align: center; font-weight: 600;"></p>
+            <div class="scaling-bar">
+                <button class="btn scaling-btn" onclick="selectStress(0)">0</button>
+                <button class="btn scaling-btn" onclick="selectStress(1)">1</button>
+                <button class="btn scaling-btn" onclick="selectStress(2)">2</button>
+                <button class="btn scaling-btn" onclick="selectStress(3)">3</button>
+                <button class="btn scaling-btn" onclick="selectStress(4)">4</button>
+            </div>
+            <div class="scaling-bar" style="margin-top: 8px;">
+                <button class="btn scaling-btn" onclick="selectStress(5)">5</button>
+                <div style="grid-column: span 4;"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 12px; opacity: 0.7; margin-top: 10px;">
+                <span>😌 entspannt</span>
+                <span>😰 gestresst</span>
+            </div>
+            <button class="btn" id="btnCloseStress" style="margin-top: 20px;">✓ Fertig</button>
+        </div>
+    </div>
+    
+    <div class="modal-overlay" id="emojiModal">
+        <div class="modal">
+            <h3>😀 Emoji wählen</h3>
+            <div style="max-height: 50vh; overflow-y: auto;">
+                <div style="margin-bottom: 20px;">
+                    <div style="color: #667eea; font-size: 14px; font-weight: 600; margin-bottom: 10px;">🤝 Zusammenarbeit</div>
+                    <div class="emoji-grid">
+                        <div class="emoji-option" data-emoji="🤝">🤝</div>
+                        <div class="emoji-option" data-emoji="👏">👏</div>
+                        <div class="emoji-option" data-emoji="🙌">🙌</div>
+                        <div class="emoji-option" data-emoji="👍">👍</div>
+                    </div>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <div style="color: #667eea; font-size: 14px; font-weight: 600; margin-bottom: 10px;">💬 Kommunikation</div>
+                    <div class="emoji-grid">
+                        <div class="emoji-option" data-emoji="💬">💬</div>
+                        <div class="emoji-option" data-emoji="📞">📞</div>
+                        <div class="emoji-option" data-emoji="🗣️">🗣️</div>
+                        <div class="emoji-option" data-emoji="💭">💭</div>
+                    </div>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <div style="color: #667eea; font-size: 14px; font-weight: 600; margin-bottom: 10px;">❤️ Beziehung</div>
+                    <div class="emoji-grid">
+                        <div class="emoji-option" data-emoji="❤️">❤️</div>
+                        <div class="emoji-option" data-emoji="💙">💙</div>
+                        <div class="emoji-option" data-emoji="💚">💚</div>
+                        <div class="emoji-option" data-emoji="💜">💜</div>
+                    </div>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <div style="color: #667eea; font-size: 14px; font-weight: 600; margin-bottom: 10px;">⚡ Energie</div>
+                    <div class="emoji-grid">
+                        <div class="emoji-option" data-emoji="⚡">⚡</div>
+                        <div class="emoji-option" data-emoji="🔥">🔥</div>
+                        <div class="emoji-option" data-emoji="✨">✨</div>
+                        <div class="emoji-option" data-emoji="🌟">🌟</div>
+                    </div>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <div style="color: #667eea; font-size: 14px; font-weight: 600; margin-bottom: 10px;">⚠️ Konflikt</div>
+                    <div class="emoji-grid">
+                        <div class="emoji-option" data-emoji="💔">💔</div>
+                        <div class="emoji-option" data-emoji="⚠️">⚠️</div>
+                        <div class="emoji-option" data-emoji="💥">💥</div>
+                        <div class="emoji-option" data-emoji="😡">😡</div>
+                    </div>
+                </div>
+            </div>
+            <button class="btn" id="btnCloseEmoji">✕ Schließen</button>
+        </div>
+    </div>
+    
+    <div class="modal-overlay" id="colorModal">
+        <div class="modal">
+            <h3>🎨 Farbe wählen</h3>
+            <div class="color-options">
+                <div class="color-option" data-color="#4CAF50">
+                    <div class="color-circle" style="background: #4CAF50;"></div>
+                    <div class="color-label">🟢 Grün - Harmonie</div>
+                </div>
+                <div class="color-option" data-color="#2196F3">
+                    <div class="color-circle" style="background: #2196F3;"></div>
+                    <div class="color-label">🔵 Blau - Neutral</div>
+                </div>
+                <div class="color-option" data-color="#FF9800">
+                    <div class="color-circle" style="background: #FF9800;"></div>
+                    <div class="color-label">🟠 Orange - Energie</div>
+                </div>
+                <div class="color-option" data-color="#F44336">
+                    <div class="color-circle" style="background: #F44336;"></div>
+                    <div class="color-label">🔴 Rot - Konflikt</div>
+                </div>
+                <div class="color-option" data-color="#9C27B0">
+                    <div class="color-circle" style="background: #9C27B0;"></div>
+                    <div class="color-label">🟣 Lila - Kreativ</div>
+                </div>
+                <div class="color-option" data-color="#9E9E9E">
+                    <div class="color-circle" style="background: #9E9E9E;"></div>
+                    <div class="color-label">⚫ Grau - Distanz</div>
+                </div>
+            </div>
+            <button class="btn" id="btnCloseColor">✕ Schließen</button>
+        </div>
+    </div>
+
+    <script>
+const APP_VERSION="5.4.7-M";
+
+// Core State
+let members=[],connections=[],snapshots=[],reflexionAnswers=[],sessions=[],history=[],historyIndex=-1;
+let nextId=1,nextConnectionId=1,personCounter=1,currentSnapshotIndex=0;
+let selectedMember=null,selectedConnection=null,selectedMemberForStress=null;
+let draggedMember=null;
+let dragOffset={x:0,y:0},canvasClickPos={x:0,y:0};
+let currentReflexionCategory=null,currentReflexionIndex=0,currentQuestionType=null,currentScalingValue=5;
+
+// Touch/Pan State
+let panOffset={x:0,y:0};
+let touchStartPos=null;
+let lastTouchPos=null;
+let touchStartTime=0;
+let longPressTimer=null;
+let longPressTarget=null;
+let isTwoFingerPan=false;
+let initialPinchDistance=0;
+
+// Auto-Save State
+let autoSaveTimer=null;
+let currentReflexionDraft=null;
+
+const REFLEXIONS_SYSTEM={
+    selbstreflexion:{
+        name:"🪞 Selbstreflexion",
+        color:"#E91E63",
+        questions:["Welche Rolle nehme ich im Team ein?","Was hindert mich daran, meine Position zu verändern?","Wo spüre ich Widerstand in mir?","In welchen Situationen fühle ich mich am authentischsten?","Was ist mein größter Beitrag zum Team?","Welche meiner Stärken sind hier noch unsichtbar?","Was würde ich gerne mehr zeigen?"]
+    },
+    beziehungsdynamik:{
+        name:"🔗 Beziehungsdynamik",
+        color:"#2196F3",
+        questions:["Zu wem habe ich die schwächste Verbindung?","Welche Beziehung kostet mich Energie?","Wo entstehen wiederkehrende Muster?","Wer ist mein wichtigster Verbündeter?","Mit wem kommuniziere ich am klarsten?","Wo entstehen Missverständnisse?","Welche Beziehung hat sich am meisten verändert?"]
+    },
+    entwicklung:{
+        name:"📈 Entwicklung & Veränderung",
+        color:"#4CAF50",
+        questions:["Was hat sich in den letzten Monaten verändert?","Welche Entwicklung überrascht mich?","Wo sehe ich Potentiale für Wachstum?","Was möchte ich lernen?","Welcher Schritt wäre der nächste?","Was hindert uns an Veränderung?","Wo waren wir schon einmal anders?"]
+    },
+    systemisch:{
+        name:"🔄 Systemische Perspektiven",
+        color:"#FF9800",
+        questions:["Was würde X über Y sagen?","Welches Problem löst meine Position?","Was würde fehlen, wenn ich nicht da wäre?","Wer profitiert von der aktuellen Konstellation?","Was ist das Symptom, was ist die Ursache?","Wo sind die Loyalitätskonflikte?","Was ist der Auftrag des Systems?"]
+    },
+    vision:{
+        name:"✨ Visionen & Wünsche",
+        color:"#9C27B0",
+        questions:["Wie sähe unser ideales Team aus?","Was ist mein größter Wunsch für uns?","Woran würden wir merken, dass es besser ist?","Was wäre das Kleinste, was sich ändern müsste?","Wenn ein Wunder geschähe - was wäre anders?","Welche Atmosphäre wünsche ich mir?","Was sollen andere über uns sagen?"]
+    }
+};
+
+const SCALING_QUESTIONS=[
+    "Auf einer Skala von 1-10: Wie zufrieden bist du mit deiner Position im Team?",
+    "Wie stark fühlst du dich vom Team unterstützt? (1-10)",
+    "Wie klar sind dir deine Aufgaben im Team? (1-10)",
+    "Wie gut kannst du deine Stärken einbringen? (1-10)",
+    "Wie wohl fühlst du dich in der Teamdynamik? (1-10)"
+];
+
+const MIRACLE_QUESTIONS=[
+    "Angenommen, über Nacht geschähe ein Wunder und unser Team wäre perfekt - woran würden wir das morgen früh merken?",
+    "Wenn alle Hindernisse verschwänden - wie würden wir dann zusammenarbeiten?",
+    "Stellen Sie sich vor, unser Team wird in einem Jahr als Vorbild genannt - was ist dann anders?"
+];
+
+function init(){
+    loadFromLocalStorage();
+    if(snapshots.length===0){
+        snapshots.push({id:Date.now(),name:"Ausgangssituation",timestamp:new Date().toLocaleString('de-DE'),members:[],connections:[]});
+    }
+    setupEventListeners();
+    applyPan();
+    render();
+}
+
+function setupEventListeners(){
+    // Toolbar buttons
+    document.getElementById('btnAddMember').onclick=addMember;
+    document.getElementById('btnAddConnection').onclick=()=>startConnectionCreation(null);
+    document.getElementById('btnReflexion').onclick=showReflexionModal;
+    document.getElementById('btnMenu').onclick=openDrawer('menuDrawer');
+    
+    // Menu drawer buttons
+    document.getElementById('btnUndo').onclick=undo;
+    document.getElementById('btnRedo').onclick=redo;
+    document.getElementById('btnShowReflexions').onclick=()=>{closeAllDrawers();openDrawer('reflexionsDrawer');updateReflexionsList();};
+    document.getElementById('btnShowStats').onclick=()=>{closeAllDrawers();openDrawer('statsDrawer');updateStats();};
+    document.getElementById('btnReset').onclick=resetApp;
+    document.getElementById('btnCloseMenu').onclick=closeAllDrawers;
+    document.getElementById('btnCloseReflexions').onclick=closeAllDrawers;
+    document.getElementById('btnCloseStats').onclick=closeAllDrawers;
+    
+    // Overlay closes drawer
+    document.getElementById('menuOverlay').onclick=closeAllDrawers;
+    
+    // Canvas touch events
+    const canvas=document.getElementById('canvas');
+    canvas.addEventListener('touchstart',onTouchStart,{passive:false});
+    canvas.addEventListener('touchmove',onTouchMove,{passive:false});
+    canvas.addEventListener('touchend',onTouchEnd,{passive:false});
+    canvas.addEventListener('touchcancel',onTouchEnd,{passive:false});
+    
+    // Context menu buttons
+    document.querySelectorAll('#memberContextMenu .context-item').forEach(el=>{
+        el.onclick=function(){
+            const action=this.getAttribute('data-action');
+            hideAllContextMenus();
+            if(!selectedMember)return;
+            if(action==='renameMember')renameMember(selectedMember);
+            else if(action==='changeStress')showStressModal(selectedMember);
+            else if(action==='markAsSelf')markAsSelf(selectedMember);
+            else if(action==='editNotes')editNotes(selectedMember);
+            else if(action==='deleteMember')deleteMember(selectedMember);
+        };
+    });
+    
+    document.querySelectorAll('#connectionContextMenu .context-item').forEach(el=>{
+        el.onclick=function(){
+            const action=this.getAttribute('data-action');
+            hideAllContextMenus();
+            if(!selectedConnection)return;
+            if(action==='changeEmoji')showEmojiModal();
+            else if(action==='changeColor')showColorModal();
+            else if(action==='deleteConnection')deleteConnection(selectedConnection);
+        };
+    });
+    
+    // Emoji selector
+    document.querySelectorAll('.emoji-option').forEach(el=>{
+        el.onclick=function(){
+            const emoji=this.getAttribute('data-emoji');
+            if(selectedConnection){
+                selectedConnection.emoji=emoji;
+                render();
+                saveState();
+                saveToLocalStorage();
+            }
+            document.getElementById('emojiModal').style.display='none';
+            showNotification('😀 Emoji geändert');
+        };
+    });
+    document.getElementById('btnCloseEmoji').onclick=()=>document.getElementById('emojiModal').style.display='none';
+    
+    // Color selector
+    document.querySelectorAll('.color-option').forEach(el=>{
+        el.onclick=function(){
+            const color=this.getAttribute('data-color');
+            if(selectedConnection){
+                selectedConnection.color=color;
+                render();
+                saveState();
+                saveToLocalStorage();
+            }
+            document.getElementById('colorModal').style.display='none';
+            showNotification('🎨 Farbe geändert');
+        };
+    });
+    document.getElementById('btnCloseColor').onclick=()=>document.getElementById('colorModal').style.display='none';
+    
+    // Reflexion modal
+    document.getElementById('btnNextReflexion').onclick=nextReflexion;
+    document.getElementById('btnOtherCategory').onclick=otherCategory;
+    document.getElementById('btnCloseReflexionModal').onclick=()=>{
+        autoSaveCurrentReflexion();
+        document.getElementById('reflexionModal').style.display='none';
+    };
+    
+    // Connection modal
+    document.getElementById('btnCreateConnection').onclick=createConnection;
+    document.getElementById('btnCancelConnection').onclick=()=>document.getElementById('connectionModal').style.display='none';
+    
+    // Simple input modal
+    document.getElementById('btnSimpleInputOK').onclick=function(){
+        if(window.simpleInputCallback){
+            const val=document.getElementById('simpleTextareaField').style.display!=='none'?
+                document.getElementById('simpleTextareaField').value:
+                document.getElementById('simpleInputField').value;
+            window.simpleInputCallback(val);
+        }
+        document.getElementById('simpleInputModal').style.display='none';
+    };
+    document.getElementById('btnSimpleInputCancel').onclick=()=>document.getElementById('simpleInputModal').style.display='none';
+    
+    // Stress modal
+    document.getElementById('btnCloseStress').onclick=()=>document.getElementById('stressModal').style.display='none';
+}
+
+// ========== TOUCH HANDLING ==========
+
+function onTouchStart(e){
+    if(e.touches.length===2){
+        // Two-finger pan
+        e.preventDefault();
+        isTwoFingerPan=true;
+        const touch1=e.touches[0];
+        const touch2=e.touches[1];
+        const midX=(touch1.clientX+touch2.clientX)/2;
+        const midY=(touch1.clientY+touch2.clientY)/2;
+        lastTouchPos={x:midX,y:midY};
+    }else if(e.touches.length===1){
+        const touch=e.touches[0];
+        touchStartPos={x:touch.clientX,y:touch.clientY};
+        lastTouchPos={x:touch.clientX,y:touch.clientY};
+        touchStartTime=Date.now();
+        
+        // Check if touching a member
+        const target=getMemberAtTouch(touch);
+        if(target){
+            longPressTarget=target;
+            longPressTimer=setTimeout(()=>{
+                // Long press detected
+                showMemberContextMenu(target);
+                longPressTarget=null;
+            },500);
+        }else{
+            // Check if touching connection emoji
+            const connTarget=getConnectionAtTouch(touch);
+            if(connTarget){
+                longPressTarget=connTarget;
+                longPressTimer=setTimeout(()=>{
+                    showConnectionContextMenu(connTarget);
+                    longPressTarget=null;
+                },500);
+            }
+        }
+    }
+}
+
+function onTouchMove(e){
+    e.preventDefault();
+    
+    if(e.touches.length===2 && isTwoFingerPan){
+        // Two-finger pan
+        const touch1=e.touches[0];
+        const touch2=e.touches[1];
+        const midX=(touch1.clientX+touch2.clientX)/2;
+        const midY=(touch1.clientY+touch2.clientY)/2;
+        
+        if(lastTouchPos){
+            const dx=midX-lastTouchPos.x;
+            const dy=midY-lastTouchPos.y;
+            panOffset.x+=dx;
+            panOffset.y+=dy;
+            applyPan();
+        }
+        
+        lastTouchPos={x:midX,y:midY};
+        
+        // Cancel long press
+        if(longPressTimer){
+            clearTimeout(longPressTimer);
+            longPressTimer=null;
+        }
+    }else if(e.touches.length===1 && !isTwoFingerPan){
+        const touch=e.touches[0];
+        
+        if(longPressTarget && longPressTarget.member){
+            // Dragging a member
+            const member=longPressTarget.member;
+            const canvas=document.getElementById('canvas');
+            const canvasRect=canvas.getBoundingClientRect();
+            
+            let newX=touch.clientX-canvasRect.left-panOffset.x-55;
+            let newY=touch.clientY-canvasRect.top-panOffset.y-55;
+            
+            const maxX=canvasRect.width-110;
+            const maxY=canvasRect.height-110;
+            
+            newX=Math.max(0,Math.min(newX,maxX));
+            newY=Math.max(0,Math.min(newY,maxY));
+            
+            member.x=newX;
+            member.y=newY;
+            
+            // Mark as dragging
+            if(!draggedMember){
+                draggedMember=member;
+                const memberEl=document.querySelector(`.member[data-id="${member.id}"]`);
+                if(memberEl)memberEl.classList.add('dragging');
+            }
+            
+            render();
+        }
+        
+        // Check if moved too much to cancel long press
+        if(touchStartPos && longPressTimer){
+            const dx=Math.abs(touch.clientX-touchStartPos.x);
+            const dy=Math.abs(touch.clientY-touchStartPos.y);
+            if(dx>10 || dy>10){
+                clearTimeout(longPressTimer);
+                longPressTimer=null;
+            }
+        }
+    }
+}
+
+function onTouchEnd(e){
+    if(longPressTimer){
+        clearTimeout(longPressTimer);
+        longPressTimer=null;
+    }
+    
+    if(draggedMember){
+        const memberEl=document.querySelector(`.member[data-id="${draggedMember.id}"]`);
+        if(memberEl)memberEl.classList.remove('dragging');
+        draggedMember=null;
+        saveState();
+        saveToLocalStorage();
+    }
+    
+    isTwoFingerPan=false;
+    longPressTarget=null;
+    touchStartPos=null;
+    lastTouchPos=null;
+}
+
+function getMemberAtTouch(touch){
+    const canvas=document.getElementById('canvas');
+    const canvasRect=canvas.getBoundingClientRect();
+    const x=touch.clientX-canvasRect.left-panOffset.x;
+    const y=touch.clientY-canvasRect.top-panOffset.y;
+    
+    for(let member of members){
+        const dx=x-(member.x+55);
+        const dy=y-(member.y+55);
+        const dist=Math.sqrt(dx*dx+dy*dy);
+        if(dist<=55){
+            return {member:member,x:x,y:y};
+        }
+    }
+    return null;
+}
+
+function getConnectionAtTouch(touch){
+    const canvas=document.getElementById('canvas');
+    const canvasRect=canvas.getBoundingClientRect();
+    const x=touch.clientX-canvasRect.left-panOffset.x;
+    const y=touch.clientY-canvasRect.top-panOffset.y;
+    
+    for(let conn of connections){
+        const from=members.find(m=>m.id===conn.from);
+        const to=members.find(m=>m.id===conn.to);
+        if(from && to){
+            const midX=(from.x+to.x)/2+55;
+            const midY=(from.y+to.y)/2+55;
+            const dx=x-midX;
+            const dy=y-midY;
+            const dist=Math.sqrt(dx*dx+dy*dy);
+            if(dist<=25){
+                return conn;
+            }
+        }
+    }
+    return null;
+}
+
+function showMemberContextMenu(target){
+    selectedMember=target.member;
+    document.getElementById('memberContextMenu').style.display='block';
+}
+
+function showConnectionContextMenu(conn){
+    selectedConnection=conn;
+    document.getElementById('connectionContextMenu').style.display='block';
+}
+
+// ========== PAN ==========
+
+function applyPan(){
+    const content=document.getElementById('canvasContent');
+    content.style.transform=`translate(${panOffset.x}px, ${panOffset.y}px)`;
+    saveToLocalStorage();
+}
+
+// ========== RENDER ==========
+
+function render(){
+    const canvas=document.getElementById('canvasContent');
+    const svg=document.getElementById('connectionsSvg');
+    
+    Array.from(canvas.children).forEach(child=>{
+        if(child.id!=='connectionsSvg')child.remove();
+    });
+    
+    svg.innerHTML='';
+    
+    // Render connections
+    connections.forEach(conn=>{
+        const fromMember=members.find(m=>m.id===conn.from);
+        const toMember=members.find(m=>m.id===conn.to);
+        
+        if(fromMember && toMember){
+            const line=document.createElementNS("http://www.w3.org/2000/svg","line");
+            line.setAttribute('x1',fromMember.x+55);
+            line.setAttribute('y1',fromMember.y+55);
+            line.setAttribute('x2',toMember.x+55);
+            line.setAttribute('y2',toMember.y+55);
+            line.setAttribute('stroke',conn.color);
+            svg.appendChild(line);
+            
+            const midX=(fromMember.x+toMember.x)/2+55;
+            const midY=(fromMember.y+toMember.y)/2+55;
+            
+            const emojiDiv=document.createElement('div');
+            emojiDiv.className='connection-emoji';
+            emojiDiv.style.left=midX+'px';
+            emojiDiv.style.top=midY+'px';
+            emojiDiv.textContent=conn.emoji;
+            canvas.appendChild(emojiDiv);
+        }
+    });
+    
+    // Render members
+    members.forEach(member=>{
+        const div=document.createElement('div');
+        div.className='member stress-'+member.stress;
+        if(member.isSelf)div.classList.add('self');
+        div.style.left=member.x+'px';
+        div.style.top=member.y+'px';
+        div.setAttribute('data-id',member.id);
+        
+        const nameDiv=document.createElement('div');
+        nameDiv.className='member-name';
+        nameDiv.textContent=member.name+(member.isSelf?' ⭐':'');
+        
+        const stressDiv=document.createElement('div');
+        stressDiv.className='stress-indicator';
+        stressDiv.textContent=getStressEmoji(member.stress)+' '+member.stress+'/5';
+        
+        div.appendChild(nameDiv);
+        div.appendChild(stressDiv);
+        
+        if(member.notes && member.notes.trim()){
+            const notesBadge=document.createElement('div');
+            notesBadge.className='notes-badge';
+            notesBadge.textContent='📝';
+            div.appendChild(notesBadge);
+        }
+        
+        canvas.appendChild(div);
+    });
+    
+    updateStats();
+    updateUndoRedoButtons();
+}
+
+function getStressEmoji(stress){
+    return ['⚪','😌','🙂','😐','😟','😰'][stress]||'⚪';
+}
+
+function updateStats(){
+    document.getElementById('memberCount').textContent=members.length;
+    document.getElementById('connectionCount').textContent=connections.length;
+    document.getElementById('statMembers').textContent=members.length;
+    document.getElementById('statConnections').textContent=connections.length;
+    document.getElementById('statReflexions').textContent=reflexionAnswers.length;
+    document.getElementById('statSnapshots').textContent=snapshots.length;
+    
+    const membersWithStress=members.filter(m=>m.stress>0);
+    if(membersWithStress.length>0){
+        const avgStress=membersWithStress.reduce((sum,m)=>sum+m.stress,0)/membersWithStress.length;
+        document.getElementById('avgStressDisplay').textContent=avgStress.toFixed(1);
+    }else{
+        document.getElementById('avgStressDisplay').textContent='0.0';
+    }
+}
+
+// ========== UNDO/REDO ==========
+
+function saveState(){
+    history=history.slice(0,historyIndex+1);
+    history.push({
+        members:JSON.parse(JSON.stringify(members)),
+        connections:JSON.parse(JSON.stringify(connections))
+    });
+    if(history.length>50){
+        history.shift();
+    }else{
+        historyIndex++;
+    }
+    updateUndoRedoButtons();
+}
+
+function undo(){
+    if(historyIndex>0){
+        historyIndex--;
+        const state=history[historyIndex];
+        members=JSON.parse(JSON.stringify(state.members));
+        connections=JSON.parse(JSON.stringify(state.connections));
+        render();
+        saveToLocalStorage();
+    }
+}
+
+function redo(){
+    if(historyIndex<history.length-1){
+        historyIndex++;
+        const state=history[historyIndex];
+        members=JSON.parse(JSON.stringify(state.members));
+        connections=JSON.parse(JSON.stringify(state.connections));
+        render();
+        saveToLocalStorage();
+    }
+}
+
+function updateUndoRedoButtons(){
+    document.getElementById('btnUndo').disabled=historyIndex<=0;
+    document.getElementById('btnRedo').disabled=historyIndex>=history.length-1;
+}
+
+// ========== MEMBERS ==========
+
+function addMember(){
+    showSimpleInput("Person hinzufügen","Name (optional):",false,(name)=>{
+        if(!name || !name.trim()){
+            name='Person '+personCounter;
+            personCounter++;
+        }
+        members.push({
+            id:nextId++,
+            name:name,
+            x:150,
+            y:150,
+            stress:3,
+            notes:'',
+            isSelf:false
+        });
+        render();
+        saveState();
+        saveToLocalStorage();
+        showNotification('✅ Person hinzugefügt: '+name);
+    });
+}
+
+function renameMember(member){
+    showSimpleInput("Umbenennen","Neuer Name:",false,(name)=>{
+        if(name){
+            member.name=name;
+            render();
+            saveState();
+            saveToLocalStorage();
+            showNotification('✏️ Umbenannt');
+        }
+    });
+}
+
+function markAsSelf(member){
+    members.forEach(m=>m.isSelf=false);
+    member.isSelf=true;
+    render();
+    saveState();
+    saveToLocalStorage();
+    showNotification('⭐ Als "Ich" markiert: '+member.name);
+}
+
+function showStressModal(member){
+    selectedMemberForStress=member;
+    document.getElementById('stressMemberName').textContent=member.name;
+    document.getElementById('stressModal').style.display='flex';
+    updateStressButtons();
+}
+
+function selectStress(level){
+    if(selectedMemberForStress){
+        selectedMemberForStress.stress=level;
+        updateStressButtons();
+        render();
+        saveState();
+        saveToLocalStorage();
+        showNotification('⚡ Stress: '+getStressEmoji(level)+' '+level);
+    }
+}
+
+function updateStressButtons(){
+    if(!selectedMemberForStress)return;
+    document.querySelectorAll('.scaling-btn').forEach((btn,i)=>{
+        if(i===selectedMemberForStress.stress){
+            btn.classList.add('active');
+        }else{
+            btn.classList.remove('active');
+        }
+    });
+}
+
+function editNotes(member){
+    document.getElementById('simpleTextareaField').value=member.notes||'';
+    showSimpleInput("Notizen bearbeiten","Notizen für "+member.name+":",true,(notes)=>{
+        member.notes=notes;
+        render();
+        saveState();
+        saveToLocalStorage();
+        showNotification('📝 Notizen gespeichert');
+    });
+}
+
+function deleteMember(member){
+    if(confirm('Person "'+member.name+'" löschen?')){
+        connections=connections.filter(c=>c.from!==member.id && c.to!==member.id);
+        members=members.filter(m=>m.id!==member.id);
+        render();
+        saveState();
+        saveToLocalStorage();
+        showNotification('🗑️ Person gelöscht');
+    }
+}
+
+// ========== CONNECTIONS ==========
+
+function startConnectionCreation(fromMember){
+    const modal=document.getElementById('connectionModal');
+    const fromSelect=document.getElementById('connectionFrom');
+    const toSelect=document.getElementById('connectionTo');
+    
+    fromSelect.innerHTML='<option value="">-- Von Person --</option>';
+    toSelect.innerHTML='<option value="">-- Zu Person --</option>';
+    
+    members.forEach(m=>{
+        const opt1=document.createElement('option');
+        opt1.value=m.id;
+        opt1.textContent=m.name;
+        fromSelect.appendChild(opt1);
+        
+        const opt2=document.createElement('option');
+        opt2.value=m.id;
+        opt2.textContent=m.name;
+        toSelect.appendChild(opt2);
+    });
+    
+    if(fromMember){
+        fromSelect.value=fromMember.id;
+        document.getElementById('connectionPromptText').textContent='Verbindung von '+fromMember.name+' zu:';
+    }
+    
+    modal.style.display='flex';
+}
+
+function createConnection(){
+    const fromId=parseInt(document.getElementById('connectionFrom').value);
+    const toId=parseInt(document.getElementById('connectionTo').value);
+    
+    if(!fromId || !toId){
+        showNotification('⚠️ Bitte beide Personen auswählen');
+        return;
+    }
+    
+    if(fromId===toId){
+        showNotification('⚠️ Gleiche Person kann nicht verbunden werden');
+        return;
+    }
+    
+    if(connections.some(c=>(c.from===fromId && c.to===toId)||(c.from===toId && c.to===fromId))){
+        showNotification('⚠️ Verbindung existiert bereits');
+        return;
+    }
+    
+    connections.push({
+        id:nextConnectionId++,
+        from:fromId,
+        to:toId,
+        emoji:'🤝',
+        color:'#4CAF50'
+    });
+    
+    document.getElementById('connectionModal').style.display='none';
+    render();
+    saveState();
+    saveToLocalStorage();
+    showNotification('🔗 Verbindung erstellt');
+}
+
+function deleteConnection(conn){
+    if(confirm('Verbindung löschen?')){
+        connections=connections.filter(c=>c.id!==conn.id);
+        render();
+        saveState();
+        saveToLocalStorage();
+        showNotification('🗑️ Verbindung gelöscht');
+    }
+}
+
+function showEmojiModal(){
+    document.getElementById('emojiModal').style.display='flex';
+}
+
+function showColorModal(){
+    document.getElementById('colorModal').style.display='flex';
+}
+
+// ========== REFLEXION ==========
+
+function showReflexionModal(){
+    const categories=Object.keys(REFLEXIONS_SYSTEM);
+    currentReflexionCategory=categories[Math.floor(Math.random()*categories.length)];
+    currentReflexionIndex=0;
+    
+    const rand=Math.random();
+    currentQuestionType=rand<0.6?'text':(rand<0.85?'scaling':'miracle');
+    
+    displayCurrentReflexion();
+    document.getElementById('reflexionModal').style.display='flex';
+}
+
+function displayCurrentReflexion(){
+    const catData=REFLEXIONS_SYSTEM[currentReflexionCategory];
+    let question;
+    
+    document.getElementById('reflexionTitle').textContent='💭 Systemische Reflexion';
+    document.getElementById('reflexionCategory').textContent=catData.name;
+    document.getElementById('reflexionCategory').style.color=catData.color;
+    
+    if(currentQuestionType==='text'){
+        question=catData.questions[currentReflexionIndex%catData.questions.length];
+        document.getElementById('reflexionQuestion').textContent=question;
+        document.getElementById('reflexionInput').innerHTML='<textarea id="reflexionAnswer" rows="4" placeholder="Deine Gedanken..."></textarea>';
+        setupTextAutoSave();
+    }else if(currentQuestionType==='scaling'){
+        question=SCALING_QUESTIONS[Math.floor(Math.random()*SCALING_QUESTIONS.length)];
+        document.getElementById('reflexionQuestion').textContent=question;
+        let html='<div class="scaling-bar">';
+        for(let i=1;i<=5;i++){
+            html+=`<button class="btn scaling-btn${i===currentScalingValue?' active':''}" onclick="selectScaling(${i})">${i}</button>`;
+        }
+        html+='</div>';
+        html+='<div class="scaling-bar">';
+        for(let i=6;i<=10;i++){
+            html+=`<button class="btn scaling-btn${i===currentScalingValue?' active':''}" onclick="selectScaling(${i})">${i}</button>`;
+        }
+        html+='</div>';
+        html+='<div class="scaling-labels"><span>niedrig</span><span>hoch</span></div>';
+        document.getElementById('reflexionInput').innerHTML=html;
+    }else{
+        question=MIRACLE_QUESTIONS[Math.floor(Math.random()*MIRACLE_QUESTIONS.length)];
+        document.getElementById('reflexionQuestion').textContent=question;
+        document.getElementById('reflexionInput').innerHTML='<textarea id="reflexionAnswer" rows="4" placeholder="Was würde sich ändern?"></textarea>';
+        setupTextAutoSave();
+    }
+    
+    currentReflexionDraft={
+        category:catData.name,
+        categoryColor:catData.color,
+        question:question,
+        type:currentQuestionType
+    };
+}
+
+function setupTextAutoSave(){
+    const textarea=document.getElementById('reflexionAnswer');
+    if(textarea){
+        textarea.oninput=()=>{
+            clearTimeout(autoSaveTimer);
+            autoSaveTimer=setTimeout(()=>{
+                autoSaveCurrentReflexion();
+            },2000);
+        };
+    }
+}
+
+function selectScaling(value){
+    currentScalingValue=value;
+    document.querySelectorAll('#reflexionInput .scaling-btn').forEach((btn,i)=>{
+        if(i+1===value){
+            btn.classList.add('active');
+        }else{
+            btn.classList.remove('active');
+        }
+    });
+    autoSaveCurrentReflexion();
+}
+
+function autoSaveCurrentReflexion(){
+    if(!currentReflexionDraft)return;
+    
+    let answer;
+    if(currentQuestionType==='scaling'){
+        answer=currentScalingValue+'/10';
+    }else{
+        const textarea=document.getElementById('reflexionAnswer');
+        if(!textarea)return;
+        answer=textarea.value;
+        if(!answer || !answer.trim())return;
+    }
+    
+    const existingIndex=reflexionAnswers.findIndex(r=>
+        r.question===currentReflexionDraft.question && r.category===currentReflexionDraft.category
+    );
+    
+    if(existingIndex>=0){
+        reflexionAnswers[existingIndex].answer=answer;
+        reflexionAnswers[existingIndex].timestamp=new Date().toLocaleString('de-DE');
+    }else{
+        reflexionAnswers.push({
+            category:currentReflexionDraft.category,
+            categoryColor:currentReflexionDraft.categoryColor,
+            question:currentReflexionDraft.question,
+            answer:answer,
+            type:currentReflexionDraft.type,
+            timestamp:new Date().toLocaleString('de-DE')
+        });
+    }
+    
+    saveToLocalStorage();
+    updateStats();
+    showSaveIndicator();
+}
+
+function showSaveIndicator(){
+    const indicator=document.getElementById('saveIndicator');
+    indicator.classList.add('show');
+    setTimeout(()=>{
+        indicator.classList.remove('show');
+    },2000);
+}
+
+function nextReflexion(){
+    autoSaveCurrentReflexion();
+    currentReflexionIndex++;
+    if(currentReflexionIndex>=REFLEXIONS_SYSTEM[currentReflexionCategory].questions.length){
+        const categories=Object.keys(REFLEXIONS_SYSTEM);
+        const currentIndex=categories.indexOf(currentReflexionCategory);
+        currentReflexionCategory=categories[(currentIndex+1)%categories.length];
+        currentReflexionIndex=0;
+    }
+    const rand=Math.random();
+    currentQuestionType=rand<0.6?'text':(rand<0.85?'scaling':'miracle');
+    currentScalingValue=5;
+    displayCurrentReflexion();
+}
+
+function otherCategory(){
+    autoSaveCurrentReflexion();
+    const categories=Object.keys(REFLEXIONS_SYSTEM);
+    const otherCategories=categories.filter(c=>c!==currentReflexionCategory);
+    currentReflexionCategory=otherCategories[Math.floor(Math.random()*otherCategories.length)];
+    currentReflexionIndex=0;
+    const rand=Math.random();
+    currentQuestionType=rand<0.6?'text':(rand<0.85?'scaling':'miracle');
+    currentScalingValue=5;
+    displayCurrentReflexion();
+}
+
+function updateReflexionsList(){
+    const list=document.getElementById('reflexionsList');
+    if(reflexionAnswers.length===0){
+        list.innerHTML='<p style="text-align: center; opacity: 0.7; padding: 40px 20px;">Noch keine Reflexionen</p>';
+        return;
+    }
+    
+    let html='';
+    reflexionAnswers.slice().reverse().forEach((r)=>{
+        html+=`<div class="reflexion-item" style="border-left-color: ${r.categoryColor};">
+            <div class="reflexion-category">${r.category}</div>
+            <div class="reflexion-question">${r.question}</div>
+            <div class="reflexion-answer">"${r.answer}"</div>
+            <div class="reflexion-timestamp">${r.timestamp}</div>
+        </div>`;
+    });
+    list.innerHTML=html;
+}
+
+// ========== UI HELPERS ==========
+
+function openDrawer(drawerId){
+    document.getElementById('menuOverlay').style.display='block';
+    const drawer=document.getElementById(drawerId);
+    drawer.style.display='block';
+    setTimeout(()=>{
+        drawer.classList.add('open');
+    },10);
+}
+
+function closeAllDrawers(){
+    document.getElementById('menuOverlay').style.display='none';
+    document.querySelectorAll('.drawer').forEach(drawer=>{
+        drawer.classList.remove('open');
+        setTimeout(()=>{
+            drawer.style.display='none';
+        },300);
+    });
+}
+
+function hideAllContextMenus(){
+    document.querySelectorAll('.context-menu').forEach(menu=>{
+        menu.style.display='none';
+    });
+}
+
+function showSimpleInput(title,placeholder,isTextarea,callback){
+    window.simpleInputCallback=callback;
+    document.getElementById('simpleInputTitle').textContent=title;
+    
+    if(isTextarea){
+        document.getElementById('simpleInputField').style.display='none';
+        document.getElementById('simpleTextareaField').style.display='block';
+        document.getElementById('simpleTextareaField').placeholder=placeholder;
+        document.getElementById('simpleTextareaField').value='';
+    }else{
+        document.getElementById('simpleInputField').style.display='block';
+        document.getElementById('simpleTextareaField').style.display='none';
+        document.getElementById('simpleInputField').placeholder=placeholder;
+        document.getElementById('simpleInputField').value='';
+    }
+    
+    document.getElementById('simpleInputModal').style.display='flex';
+}
+
+function showNotification(message){
+    const notif=document.createElement('div');
+    notif.className='notification';
+    notif.textContent=message;
+    document.body.appendChild(notif);
+    setTimeout(()=>{
+        notif.remove();
+    },3000);
+}
+
+function resetApp(){
+    if(confirm('Alles zurücksetzen?')){
+        members=[];
+        connections=[];
+        snapshots=[{id:Date.now(),name:'Ausgangssituation',timestamp:new Date().toLocaleString('de-DE'),members:[],connections:[]}];
+        reflexionAnswers=[];
+        nextId=1;
+        nextConnectionId=1;
+        personCounter=1;
+        currentSnapshotIndex=0;
+        history=[];
+        historyIndex=-1;
+        panOffset={x:0,y:0};
+        applyPan();
+        render();
+        saveToLocalStorage();
+        closeAllDrawers();
+        showNotification('🔄 Reset!');
+    }
+}
+
+// ========== STORAGE ==========
+
+function saveToLocalStorage(){
+    const data={
+        members:members,
+        connections:connections,
+        snapshots:snapshots,
+        reflexions:reflexionAnswers,
+        sessions:sessions,
+        nextId:nextId,
+        nextConnectionId:nextConnectionId,
+        personCounter:personCounter,
+        panOffset:panOffset
+    };
+    localStorage.setItem('reflexionsRadarMobile',JSON.stringify(data));
+}
+
+function loadFromLocalStorage(){
+    const stored=localStorage.getItem('reflexionsRadarMobile');
+    if(stored){
+        try{
+            const data=JSON.parse(stored);
+            members=data.members||[];
+            connections=data.connections||[];
+            snapshots=data.snapshots||[];
+            reflexionAnswers=data.reflexions||[];
+            sessions=data.sessions||[];
+            nextId=data.nextId||1;
+            nextConnectionId=data.nextConnectionId||1;
+            personCounter=data.personCounter||1;
+            
+            if(data.panOffset){
+                panOffset=data.panOffset;
+            }
+            
+            if(members.length>0||connections.length>0){
+                history=[{
+                    members:JSON.parse(JSON.stringify(members)),
+                    connections:JSON.parse(JSON.stringify(connections))
+                }];
+                historyIndex=0;
+            }
+        }catch(err){
+            console.error('Error loading data:',err);
+        }
+    }
+}
+
+// Make functions globally accessible
+window.selectScaling=selectScaling;
+window.selectStress=selectStress;
+
+init();
+    </script>
+</body>
+</html>
