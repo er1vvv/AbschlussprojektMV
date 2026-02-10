@@ -976,7 +976,7 @@
     </div>
 
     <script>
-const APP_VERSION="5.4.9-M";
+const APP_VERSION="5.4.9-M-FIXED";
 
 // Core State
 let members=[],connections=[],snapshots=[],reflexionAnswers=[],sessions=[],history=[],historyIndex=-1;
@@ -1069,8 +1069,22 @@ function setupEventListeners(){
     document.getElementById('btnCloseReflexions').addEventListener('click',closeAllDrawers);
     document.getElementById('btnCloseStats').addEventListener('click',closeAllDrawers);
     
-    // Overlay
-    document.getElementById('drawerOverlay').addEventListener('click',closeAllDrawers);
+    // Overlay - NUR bei direktem Tap auf Overlay, NICHT bei Drawer-Content
+    document.getElementById('drawerOverlay').addEventListener('click',(e)=>{
+        if(e.target.id==='drawerOverlay'){
+            closeAllDrawers();
+        }
+    });
+    
+    // Verhindere dass Drawer-Touches zum Overlay propagieren
+    document.querySelectorAll('.drawer').forEach(drawer=>{
+        drawer.addEventListener('touchstart',(e)=>{
+            e.stopPropagation();
+        });
+        drawer.addEventListener('click',(e)=>{
+            e.stopPropagation();
+        });
+    });
     
     // Canvas touch
     const canvas=document.getElementById('canvas');
