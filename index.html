@@ -1064,10 +1064,11 @@ function setupEventListeners(){
     document.getElementById('cancelPositionBtn').addEventListener('click',cancelPositionMode);
     
     // Menu drawer - mit stopPropagation
+    // *** ÄNDERUNG 1: closeAllDrawers() ENTFERNT ***
     document.getElementById('btnUndo').addEventListener('click',(e)=>{e.stopPropagation();undo();});
     document.getElementById('btnRedo').addEventListener('click',(e)=>{e.stopPropagation();redo();});
-    document.getElementById('btnShowReflexions').addEventListener('click',(e)=>{e.stopPropagation();closeAllDrawers();openDrawer('reflexionsDrawer');updateReflexionsList();});
-    document.getElementById('btnShowStats').addEventListener('click',(e)=>{e.stopPropagation();closeAllDrawers();openDrawer('statsDrawer');updateStats();});
+    document.getElementById('btnShowReflexions').addEventListener('click',(e)=>{e.stopPropagation();openDrawer('reflexionsDrawer');updateReflexionsList();});
+    document.getElementById('btnShowStats').addEventListener('click',(e)=>{e.stopPropagation();openDrawer('statsDrawer');updateStats();});
     document.getElementById('btnReset').addEventListener('click',(e)=>{e.stopPropagation();resetApp();});
     document.getElementById('btnCloseMenu').addEventListener('click',(e)=>{e.stopPropagation();closeAllDrawers();});
     document.getElementById('btnCloseReflexions').addEventListener('click',(e)=>{e.stopPropagation();closeAllDrawers();});
@@ -1861,7 +1862,19 @@ function updateReflexionsList(){
 
 // ========== UI HELPERS ==========
 
+// *** ÄNDERUNG 2: openDrawer() schließt jetzt selbst alle ANDEREN Drawer ***
 function openDrawer(drawerId){
+    // Erst alle ANDEREN Drawer schließen
+    document.querySelectorAll('.drawer').forEach(drawer=>{
+        if(drawer.id !== drawerId){
+            drawer.classList.remove('open');
+            setTimeout(()=>{
+                if(drawer.id !== drawerId) drawer.style.display='none';
+            },300);
+        }
+    });
+    
+    // Dann den gewünschten Drawer öffnen
     isDrawerOpen=true;
     document.getElementById('drawerOverlay').style.display='block';
     const drawer=document.getElementById(drawerId);
