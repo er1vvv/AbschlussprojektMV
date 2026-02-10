@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>🎯 Reflexions-Radar Mobile v5.4.8-M</title>
+    <title>🎯 Reflexions-Radar Mobile v5.4.9-M</title>
     <style>
         :root {
             --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -67,6 +67,42 @@
             font-weight: 600; 
         }
         
+        /* POSITION MODE BANNER */
+        .position-mode-banner {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            right: 0;
+            height: 50px;
+            background: rgba(255,193,7,0.95);
+            backdrop-filter: blur(20px);
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 15px;
+            z-index: 999;
+            color: #000;
+            font-weight: 700;
+            font-size: 14px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.3);
+        }
+        .position-mode-banner.active {
+            display: flex;
+        }
+        .cancel-position-btn {
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            border: 2px solid rgba(255,255,255,0.3);
+            cursor: pointer;
+        }
+        .cancel-position-btn:active {
+            transform: scale(0.95);
+        }
+        
         /* BOTTOM TOOLBAR */
         .bottom-toolbar {
             position: fixed;
@@ -119,6 +155,10 @@
             overflow: hidden; 
             background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.05) 0%, transparent 70%); 
             touch-action: none;
+        }
+        #canvas.position-mode {
+            top: 110px;
+            cursor: crosshair;
         }
         #canvasContent { 
             transform-origin: 0 0; 
@@ -194,6 +234,16 @@
             border-color: #FFD700; 
             box-shadow: 0 0 20px rgba(255,215,0,0.6), 0 6px 20px rgba(0,0,0,0.4); 
         }
+        .member.being-positioned {
+            border-color: #FFC107;
+            border-width: 5px;
+            box-shadow: 0 0 30px rgba(255,193,7,0.8), 0 8px 25px rgba(0,0,0,0.5);
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
         .member-name { 
             font-weight: 700; 
             margin-bottom: 4px; 
@@ -213,10 +263,6 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
-        }
-        .stress-indicator:active {
-            transform: scale(0.95);
         }
         .member-menu-btn {
             position: absolute;
@@ -348,6 +394,8 @@
             display: none;
             border: 2px solid var(--glass-border);
             box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+            max-height: 70vh;
+            overflow-y: auto;
         }
         .context-item {
             padding: 16px;
@@ -355,6 +403,7 @@
             font-size: 16px;
             display: flex;
             align-items: center;
+            justify-content: space-between;
             gap: 12px;
             font-weight: 500;
             border-radius: 10px;
@@ -364,6 +413,40 @@
         }
         .context-item:active {
             background: rgba(255,255,255,0.1);
+        }
+        .context-item-label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .context-item-value {
+            opacity: 0.7;
+            font-size: 14px;
+        }
+        .context-submenu {
+            display: none;
+            padding-left: 20px;
+        }
+        .context-submenu.open {
+            display: block;
+        }
+        .submenu-item {
+            padding: 12px 16px;
+            color: white;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-radius: 8px;
+            min-height: 45px;
+            cursor: pointer;
+        }
+        .submenu-item:active {
+            background: rgba(255,255,255,0.1);
+        }
+        .submenu-item.active {
+            background: rgba(76,175,80,0.3);
+            border: 2px solid #4CAF50;
         }
         
         /* MODAL */
@@ -609,6 +692,12 @@
         </div>
     </div>
     
+    <!-- POSITION MODE BANNER -->
+    <div class="position-mode-banner" id="positionBanner">
+        <span>📍 Tippe auf Canvas, um Person zu platzieren</span>
+        <button class="cancel-position-btn" id="cancelPositionBtn">Abbrechen</button>
+    </div>
+    
     <!-- CANVAS -->
     <div id="canvas">
         <div id="canvasContent">
@@ -690,17 +779,78 @@
     
     <!-- CONTEXT MENUS -->
     <div class="context-menu" id="memberContextMenu">
-        <div class="context-item" data-action="renameMember">✏️ Umbenennen</div>
-        <div class="context-item" data-action="markAsSelf">⭐ Als mich markieren</div>
-        <div class="context-item" data-action="editNotes">📝 Notizen bearbeiten</div>
-        <div class="context-item" data-action="addConnection">🔗 Verbindung erstellen</div>
-        <div class="context-item" data-action="deleteMember">🗑️ Löschen</div>
+        <div class="context-item" data-action="changePosition">
+            <div class="context-item-label">
+                <span>📍</span>
+                <span>Position ändern</span>
+            </div>
+        </div>
+        <div class="context-item" id="stressMenuItem">
+            <div class="context-item-label">
+                <span>⚡</span>
+                <span>Stress-Level</span>
+            </div>
+            <div class="context-item-value" id="stressMenuValue">3/5 ➜</div>
+        </div>
+        <div class="context-submenu" id="stressSubmenu">
+            <div class="submenu-item" data-stress="0">😌 0 - Entspannt</div>
+            <div class="submenu-item" data-stress="1">🙂 1 - Sehr ruhig</div>
+            <div class="submenu-item" data-stress="2">😐 2 - Ruhig</div>
+            <div class="submenu-item" data-stress="3">😕 3 - Mittel</div>
+            <div class="submenu-item" data-stress="4">😟 4 - Angespannt</div>
+            <div class="submenu-item" data-stress="5">😰 5 - Sehr gestresst</div>
+        </div>
+        <div class="context-item" data-action="renameMember">
+            <div class="context-item-label">
+                <span>✏️</span>
+                <span>Umbenennen</span>
+            </div>
+        </div>
+        <div class="context-item" data-action="markAsSelf">
+            <div class="context-item-label">
+                <span>⭐</span>
+                <span>Als mich markieren</span>
+            </div>
+        </div>
+        <div class="context-item" data-action="editNotes">
+            <div class="context-item-label">
+                <span>📝</span>
+                <span>Notizen bearbeiten</span>
+            </div>
+        </div>
+        <div class="context-item" data-action="addConnection">
+            <div class="context-item-label">
+                <span>🔗</span>
+                <span>Verbindung erstellen</span>
+            </div>
+        </div>
+        <div class="context-item" data-action="deleteMember">
+            <div class="context-item-label">
+                <span>🗑️</span>
+                <span>Löschen</span>
+            </div>
+        </div>
     </div>
     
     <div class="context-menu" id="connectionContextMenu">
-        <div class="context-item" data-action="changeEmoji">😀 Emoji ändern</div>
-        <div class="context-item" data-action="changeColor">🎨 Farbe ändern</div>
-        <div class="context-item" data-action="deleteConnection">🗑️ Löschen</div>
+        <div class="context-item" data-action="changeEmoji">
+            <div class="context-item-label">
+                <span>😀</span>
+                <span>Emoji ändern</span>
+            </div>
+        </div>
+        <div class="context-item" data-action="changeColor">
+            <div class="context-item-label">
+                <span>🎨</span>
+                <span>Farbe ändern</span>
+            </div>
+        </div>
+        <div class="context-item" data-action="deleteConnection">
+            <div class="context-item-label">
+                <span>🗑️</span>
+                <span>Löschen</span>
+            </div>
+        </div>
     </div>
     
     <!-- MODALS -->
@@ -735,28 +885,6 @@
             <select id="connectionTo"><option value="">-- Zu Person --</option></select>
             <button class="btn" id="btnCreateConnection">🔗 Erstellen</button>
             <button class="btn" id="btnCancelConnection">✕ Abbrechen</button>
-        </div>
-    </div>
-    
-    <div class="modal-overlay" id="stressModal">
-        <div class="modal">
-            <h3>⚡ Stress-Level ändern</h3>
-            <p id="stressMemberName" style="margin-bottom: 15px; text-align: center; font-weight: 600;"></p>
-            <div class="scaling-bar">
-                <button class="btn scaling-btn" onclick="selectStress(0)">0</button>
-                <button class="btn scaling-btn" onclick="selectStress(1)">1</button>
-                <button class="btn scaling-btn" onclick="selectStress(2)">2</button>
-            </div>
-            <div class="scaling-bar">
-                <button class="btn scaling-btn" onclick="selectStress(3)">3</button>
-                <button class="btn scaling-btn" onclick="selectStress(4)">4</button>
-                <button class="btn scaling-btn" onclick="selectStress(5)">5</button>
-            </div>
-            <div style="display: flex; justify-content: space-between; font-size: 12px; opacity: 0.7; margin-top: 10px;">
-                <span>😌 entspannt</span>
-                <span>😰 gestresst</span>
-            </div>
-            <button class="btn" id="btnCloseStress" style="margin-top: 20px;">✓ Fertig</button>
         </div>
     </div>
     
@@ -848,14 +976,18 @@
     </div>
 
     <script>
-const APP_VERSION="5.4.8-M";
+const APP_VERSION="5.4.9-M";
 
 // Core State
 let members=[],connections=[],snapshots=[],reflexionAnswers=[],sessions=[],history=[],historyIndex=-1;
 let nextId=1,nextConnectionId=1,personCounter=1,currentSnapshotIndex=0;
-let selectedMember=null,selectedConnection=null,selectedMemberForStress=null;
+let selectedMember=null,selectedConnection=null;
 let draggedMember=null;
 let currentReflexionCategory=null,currentReflexionIndex=0,currentQuestionType=null,currentScalingValue=5;
+
+// Position Mode State
+let positionMode=false;
+let memberBeingPositioned=null;
 
 // Touch/Pan State
 let panOffset={x:0,y:0};
@@ -924,6 +1056,9 @@ function setupEventListeners(){
     document.getElementById('btnReflexion').addEventListener('click',showReflexionModal);
     document.getElementById('btnMenu').addEventListener('click',()=>openDrawer('menuDrawer'));
     
+    // Position mode
+    document.getElementById('cancelPositionBtn').addEventListener('click',cancelPositionMode);
+    
     // Menu drawer
     document.getElementById('btnUndo').addEventListener('click',undo);
     document.getElementById('btnRedo').addEventListener('click',redo);
@@ -951,13 +1086,15 @@ function setupEventListeners(){
         }
     });
     
-    // Context menus
+    // Member context menu
     document.querySelectorAll('#memberContextMenu .context-item').forEach(el=>{
         el.addEventListener('click',function(){
             const action=this.getAttribute('data-action');
+            if(!action)return; // For stress menu item
             hideAllContextMenus();
             if(!selectedMember)return;
-            if(action==='renameMember')renameMember(selectedMember);
+            if(action==='changePosition')startPositionMode(selectedMember);
+            else if(action==='renameMember')renameMember(selectedMember);
             else if(action==='markAsSelf')markAsSelf(selectedMember);
             else if(action==='editNotes')editNotes(selectedMember);
             else if(action==='addConnection')startConnectionCreation(selectedMember);
@@ -965,6 +1102,30 @@ function setupEventListeners(){
         });
     });
     
+    // Stress menu item toggle
+    document.getElementById('stressMenuItem').addEventListener('click',function(e){
+        e.stopPropagation();
+        const submenu=document.getElementById('stressSubmenu');
+        submenu.classList.toggle('open');
+    });
+    
+    // Stress submenu items
+    document.querySelectorAll('#stressSubmenu .submenu-item').forEach(el=>{
+        el.addEventListener('click',function(e){
+            e.stopPropagation();
+            const stress=parseInt(this.getAttribute('data-stress'));
+            if(selectedMember){
+                selectedMember.stress=stress;
+                render();
+                saveState();
+                saveToLocalStorage();
+                showNotification('⚡ Stress geändert: '+stress+'/5');
+                hideAllContextMenus();
+            }
+        });
+    });
+    
+    // Connection context menu
     document.querySelectorAll('#connectionContextMenu .context-item').forEach(el=>{
         el.addEventListener('click',function(){
             const action=this.getAttribute('data-action');
@@ -1030,9 +1191,25 @@ function setupEventListeners(){
         closeModal('simpleInputModal');
     });
     document.getElementById('btnSimpleInputCancel').addEventListener('click',()=>closeModal('simpleInputModal'));
-    
-    // Stress modal
-    document.getElementById('btnCloseStress').addEventListener('click',()=>closeModal('stressModal'));
+}
+
+// ========== POSITION MODE ==========
+
+function startPositionMode(member){
+    positionMode=true;
+    memberBeingPositioned=member;
+    document.getElementById('positionBanner').classList.add('active');
+    document.getElementById('canvas').classList.add('position-mode');
+    render();
+    showNotification('📍 Tippe auf Canvas, um '+member.name+' zu platzieren');
+}
+
+function cancelPositionMode(){
+    positionMode=false;
+    memberBeingPositioned=null;
+    document.getElementById('positionBanner').classList.remove('active');
+    document.getElementById('canvas').classList.remove('position-mode');
+    render();
 }
 
 // ========== TOUCH HANDLING ==========
@@ -1053,21 +1230,31 @@ function onTouchStart(e){
         const touch=e.touches[0];
         const target=e.target;
         
+        // Position mode - tap to place
+        if(positionMode && !target.closest('.member') && !target.closest('.connection-emoji')){
+            e.preventDefault();
+            const canvasRect=document.getElementById('canvas').getBoundingClientRect();
+            const x=touch.clientX-canvasRect.left-panOffset.x-55;
+            const y=touch.clientY-canvasRect.top-panOffset.y-55;
+            
+            if(memberBeingPositioned){
+                memberBeingPositioned.x=Math.max(0,Math.min(x,canvasRect.width-110));
+                memberBeingPositioned.y=Math.max(0,Math.min(y,canvasRect.height-110));
+                saveState();
+                saveToLocalStorage();
+                showNotification('✅ Position gesetzt');
+                cancelPositionMode();
+            }
+            return;
+        }
+        
         // Check if tapping member menu button
         if(target.classList.contains('member-menu-btn')){
             e.preventDefault();
             const memberId=parseInt(target.closest('.member').getAttribute('data-id'));
             selectedMember=members.find(m=>m.id===memberId);
+            updateStressMenuDisplay();
             showMemberContextMenu();
-            return;
-        }
-        
-        // Check if tapping stress indicator
-        if(target.classList.contains('stress-indicator')){
-            e.preventDefault();
-            const memberId=parseInt(target.closest('.member').getAttribute('data-id'));
-            const member=members.find(m=>m.id===memberId);
-            if(member)showStressModal(member);
             return;
         }
         
@@ -1082,7 +1269,7 @@ function onTouchStart(e){
         
         // Check if tapping member (for drag)
         const memberEl=target.closest('.member');
-        if(memberEl){
+        if(memberEl && !positionMode){
             e.preventDefault();
             const memberId=parseInt(memberEl.getAttribute('data-id'));
             draggedMember=members.find(m=>m.id===memberId);
@@ -1204,6 +1391,9 @@ function render(){
         const div=document.createElement('div');
         div.className='member stress-'+member.stress;
         if(member.isSelf)div.classList.add('self');
+        if(memberBeingPositioned && memberBeingPositioned.id===member.id){
+            div.classList.add('being-positioned');
+        }
         div.style.left=member.x+'px';
         div.style.top=member.y+'px';
         div.setAttribute('data-id',member.id);
@@ -1256,6 +1446,19 @@ function updateStats(){
         document.getElementById('avgStressDisplay').textContent=avgStress.toFixed(1);
     }else{
         document.getElementById('avgStressDisplay').textContent='0.0';
+    }
+}
+
+function updateStressMenuDisplay(){
+    if(selectedMember){
+        document.getElementById('stressMenuValue').textContent=selectedMember.stress+'/5 ➜';
+        document.querySelectorAll('#stressSubmenu .submenu-item').forEach((el,i)=>{
+            if(i===selectedMember.stress){
+                el.classList.add('active');
+            }else{
+                el.classList.remove('active');
+            }
+        });
     }
 }
 
@@ -1345,35 +1548,6 @@ function markAsSelf(member){
     saveState();
     saveToLocalStorage();
     showNotification('⭐ Als "Ich" markiert: '+member.name);
-}
-
-function showStressModal(member){
-    selectedMemberForStress=member;
-    document.getElementById('stressMemberName').textContent=member.name;
-    openModal('stressModal');
-    updateStressButtons();
-}
-
-function selectStress(level){
-    if(selectedMemberForStress){
-        selectedMemberForStress.stress=level;
-        updateStressButtons();
-        render();
-        saveState();
-        saveToLocalStorage();
-        showNotification('⚡ Stress: '+getStressEmoji(level)+' '+level);
-    }
-}
-
-function updateStressButtons(){
-    if(!selectedMemberForStress)return;
-    document.querySelectorAll('.scaling-btn').forEach((btn,i)=>{
-        if(i===selectedMemberForStress.stress){
-            btn.classList.add('active');
-        }else{
-            btn.classList.remove('active');
-        }
-    });
 }
 
 function editNotes(member){
@@ -1695,6 +1869,7 @@ function hideAllContextMenus(){
     document.querySelectorAll('.context-menu').forEach(menu=>{
         menu.style.display='none';
     });
+    document.getElementById('stressSubmenu').classList.remove('open');
 }
 
 function showSimpleInput(title,placeholder,isTextarea,callback){
@@ -1739,6 +1914,7 @@ function resetApp(){
         history=[];
         historyIndex=-1;
         panOffset={x:0,y:0};
+        cancelPositionMode();
         applyPan();
         render();
         saveToLocalStorage();
@@ -1797,7 +1973,6 @@ function loadFromLocalStorage(){
 
 // Make functions globally accessible
 window.selectScaling=selectScaling;
-window.selectStress=selectStress;
 
 init();
     </script>
