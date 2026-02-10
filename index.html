@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>🎯 Reflexions-Radar Mobile v5.4.7-M</title>
+    <title>🎯 Reflexions-Radar Mobile v5.4.8-M</title>
     <style>
         :root {
             --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -95,17 +95,13 @@
             background: rgba(255,255,255,0.1);
             border-radius: 12px;
             font-size: 24px;
-            cursor: pointer;
             transition: all 0.2s ease;
             border: 2px solid transparent;
+            cursor: pointer;
         }
         .tool-btn:active {
             background: rgba(255,255,255,0.3);
             transform: scale(0.95);
-        }
-        .tool-btn.active {
-            background: rgba(76,175,80,0.3);
-            border-color: #4CAF50;
         }
         .tool-label {
             font-size: 9px;
@@ -151,8 +147,8 @@
             font-size: 28px; 
             background: linear-gradient(145deg, rgba(0,0,0,0.95), rgba(0,0,0,0.85)); 
             border-radius: 50%; 
-            width: 50px; 
-            height: 50px; 
+            width: 56px; 
+            height: 56px; 
             display: flex; 
             align-items: center; 
             justify-content: center; 
@@ -161,6 +157,10 @@
             border: 3px solid rgba(255,255,255,0.6); 
             box-shadow: 0 4px 15px rgba(0,0,0,0.5); 
             pointer-events: auto; 
+            cursor: pointer;
+        }
+        .connection-emoji:active {
+            transform: translate(-50%, -50%) scale(0.9);
         }
         
         /* MEMBERS */
@@ -182,11 +182,13 @@
             border: 3px solid rgba(255,255,255,0.3); 
             backdrop-filter: blur(5px); 
             z-index: 10; 
-            transition: transform 0.2s ease;
+            transition: transform 0.1s ease;
+            cursor: move;
         }
         .member.dragging { 
             transform: scale(1.15); 
             z-index: 50; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
         }
         .member.self { 
             border-color: #FFD700; 
@@ -201,21 +203,47 @@
         }
         .stress-indicator { 
             background: rgba(0,0,0,0.7); 
-            padding: 4px 8px; 
+            padding: 6px 10px; 
             border-radius: 10px; 
             font-size: 11px; 
             border: 1px solid rgba(255,255,255,0.4); 
             font-weight: 600; 
-            min-width: 50px;
-            min-height: 30px;
+            min-width: 55px;
+            min-height: 32px;
             display: flex;
             align-items: center;
             justify-content: center;
+            cursor: pointer;
+        }
+        .stress-indicator:active {
+            transform: scale(0.95);
+        }
+        .member-menu-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 28px;
+            height: 28px;
+            background: rgba(0,0,0,0.8);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 700;
+            color: white;
+            z-index: 15;
+            border: 2px solid rgba(255,255,255,0.5);
+            cursor: pointer;
+        }
+        .member-menu-btn:active {
+            transform: scale(0.9);
+            background: rgba(0,0,0,1);
         }
         .notes-badge { 
             position: absolute; 
             top: -5px; 
-            right: -5px; 
+            left: -5px; 
             width: 30px; 
             height: 30px; 
             background: rgba(255,193,7,0.9); 
@@ -251,7 +279,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            max-height: 80vh;
+            max-height: 85vh;
             background: rgba(0,0,0,0.95);
             backdrop-filter: blur(25px);
             border-top-left-radius: 20px;
@@ -296,6 +324,7 @@
             gap: 8px;
             min-height: 50px;
             transition: all 0.2s ease;
+            cursor: pointer;
         }
         .btn:active {
             background: rgba(255,255,255,0.2);
@@ -315,7 +344,7 @@
             backdrop-filter: blur(25px);
             border-radius: 15px;
             padding: 10px;
-            z-index: 1500;
+            z-index: 1700;
             display: none;
             border: 2px solid var(--glass-border);
             box-shadow: 0 10px 30px rgba(0,0,0,0.7);
@@ -331,6 +360,7 @@
             border-radius: 10px;
             min-height: 50px;
             transition: background 0.2s ease;
+            cursor: pointer;
         }
         .context-item:active {
             background: rgba(255,255,255,0.1);
@@ -359,7 +389,7 @@
             padding: 25px;
             width: 100%;
             max-width: 400px;
-            max-height: 80vh;
+            max-height: 85vh;
             overflow-y: auto;
             color: white;
         }
@@ -412,6 +442,7 @@
             justify-content: center;
             font-size: 32px;
             min-height: 60px;
+            cursor: pointer;
         }
         .emoji-option:active {
             background: rgba(255,255,255,0.2);
@@ -434,6 +465,7 @@
             border: 2px solid var(--glass-border);
             border-radius: 10px;
             min-height: 60px;
+            cursor: pointer;
         }
         .color-option:active {
             background: rgba(255,255,255,0.15);
@@ -455,7 +487,7 @@
         /* SCALING BAR */
         .scaling-bar {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 8px;
             margin: 20px 0;
         }
@@ -464,7 +496,7 @@
             padding: 0;
             font-size: 18px;
             border-radius: 10px;
-            min-height: 50px;
+            min-height: 55px;
         }
         .scaling-btn.active {
             background: rgba(76,175,80,0.5);
@@ -531,29 +563,6 @@
         .reflexion-timestamp {
             font-size: 11px;
             opacity: 0.6;
-        }
-        
-        /* SESSION ITEM */
-        .session-item {
-            background: rgba(255,255,255,0.05);
-            padding: 15px;
-            margin: 10px 0;
-            border-radius: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border: 1px solid var(--glass-border);
-        }
-        .session-info {
-            flex: 1;
-        }
-        .session-name {
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-        .session-timestamp {
-            font-size: 12px;
-            opacity: 0.7;
         }
         
         /* QUESTION TEXT */
@@ -628,15 +637,13 @@
     </div>
     
     <!-- MAIN MENU DRAWER -->
-    <div class="drawer-overlay" id="menuOverlay"></div>
+    <div class="drawer-overlay" id="drawerOverlay"></div>
     <div class="drawer" id="menuDrawer">
         <div class="drawer-handle"></div>
         <h3>📋 Menü</h3>
         <button class="btn" id="btnUndo" disabled>↶ Rückgängig</button>
         <button class="btn" id="btnRedo" disabled>↷ Wiederholen</button>
         <button class="btn" id="btnShowReflexions">📝 Reflexions-Historie</button>
-        <button class="btn" id="btnShowTimeline">📊 Timeline</button>
-        <button class="btn" id="btnShowSessions">📁 Sessions</button>
         <button class="btn" id="btnShowStats">📈 Statistiken</button>
         <button class="btn" id="btnReset">🔄 Reset</button>
         <button class="btn" id="btnCloseMenu">✕ Schließen</button>
@@ -684,9 +691,9 @@
     <!-- CONTEXT MENUS -->
     <div class="context-menu" id="memberContextMenu">
         <div class="context-item" data-action="renameMember">✏️ Umbenennen</div>
-        <div class="context-item" data-action="changeStress">⚡ Stress ändern</div>
         <div class="context-item" data-action="markAsSelf">⭐ Als mich markieren</div>
         <div class="context-item" data-action="editNotes">📝 Notizen bearbeiten</div>
+        <div class="context-item" data-action="addConnection">🔗 Verbindung erstellen</div>
         <div class="context-item" data-action="deleteMember">🗑️ Löschen</div>
     </div>
     
@@ -723,7 +730,7 @@
     <div class="modal-overlay" id="connectionModal">
         <div class="modal">
             <h3>🔗 Verbindung erstellen</h3>
-            <p id="connectionPromptText" style="margin-bottom: 15px; text-align: center;">Wähle zwei Personen:</p>
+            <p style="margin-bottom: 15px; text-align: center;">Wähle zwei Personen:</p>
             <select id="connectionFrom"><option value="">-- Von Person --</option></select>
             <select id="connectionTo"><option value="">-- Zu Person --</option></select>
             <button class="btn" id="btnCreateConnection">🔗 Erstellen</button>
@@ -739,12 +746,11 @@
                 <button class="btn scaling-btn" onclick="selectStress(0)">0</button>
                 <button class="btn scaling-btn" onclick="selectStress(1)">1</button>
                 <button class="btn scaling-btn" onclick="selectStress(2)">2</button>
+            </div>
+            <div class="scaling-bar">
                 <button class="btn scaling-btn" onclick="selectStress(3)">3</button>
                 <button class="btn scaling-btn" onclick="selectStress(4)">4</button>
-            </div>
-            <div class="scaling-bar" style="margin-top: 8px;">
                 <button class="btn scaling-btn" onclick="selectStress(5)">5</button>
-                <div style="grid-column: span 4;"></div>
             </div>
             <div style="display: flex; justify-content: space-between; font-size: 12px; opacity: 0.7; margin-top: 10px;">
                 <span>😌 entspannt</span>
@@ -842,25 +848,21 @@
     </div>
 
     <script>
-const APP_VERSION="5.4.7-M";
+const APP_VERSION="5.4.8-M";
 
 // Core State
 let members=[],connections=[],snapshots=[],reflexionAnswers=[],sessions=[],history=[],historyIndex=-1;
 let nextId=1,nextConnectionId=1,personCounter=1,currentSnapshotIndex=0;
 let selectedMember=null,selectedConnection=null,selectedMemberForStress=null;
 let draggedMember=null;
-let dragOffset={x:0,y:0},canvasClickPos={x:0,y:0};
 let currentReflexionCategory=null,currentReflexionIndex=0,currentQuestionType=null,currentScalingValue=5;
 
 // Touch/Pan State
 let panOffset={x:0,y:0};
 let touchStartPos=null;
-let lastTouchPos=null;
-let touchStartTime=0;
-let longPressTimer=null;
-let longPressTarget=null;
+let initialTouches=null;
 let isTwoFingerPan=false;
-let initialPinchDistance=0;
+let isDragging=false;
 
 // Auto-Save State
 let autoSaveTimer=null;
@@ -870,42 +872,39 @@ const REFLEXIONS_SYSTEM={
     selbstreflexion:{
         name:"🪞 Selbstreflexion",
         color:"#E91E63",
-        questions:["Welche Rolle nehme ich im Team ein?","Was hindert mich daran, meine Position zu verändern?","Wo spüre ich Widerstand in mir?","In welchen Situationen fühle ich mich am authentischsten?","Was ist mein größter Beitrag zum Team?","Welche meiner Stärken sind hier noch unsichtbar?","Was würde ich gerne mehr zeigen?"]
+        questions:["Welche Rolle nehme ich im Team ein?","Was hindert mich daran, meine Position zu verändern?","Wo spüre ich Widerstand in mir?"]
     },
     beziehungsdynamik:{
         name:"🔗 Beziehungsdynamik",
         color:"#2196F3",
-        questions:["Zu wem habe ich die schwächste Verbindung?","Welche Beziehung kostet mich Energie?","Wo entstehen wiederkehrende Muster?","Wer ist mein wichtigster Verbündeter?","Mit wem kommuniziere ich am klarsten?","Wo entstehen Missverständnisse?","Welche Beziehung hat sich am meisten verändert?"]
+        questions:["Zu wem habe ich die schwächste Verbindung?","Welche Beziehung kostet mich Energie?","Wo entstehen wiederkehrende Muster?"]
     },
     entwicklung:{
-        name:"📈 Entwicklung & Veränderung",
+        name:"📈 Entwicklung",
         color:"#4CAF50",
-        questions:["Was hat sich in den letzten Monaten verändert?","Welche Entwicklung überrascht mich?","Wo sehe ich Potentiale für Wachstum?","Was möchte ich lernen?","Welcher Schritt wäre der nächste?","Was hindert uns an Veränderung?","Wo waren wir schon einmal anders?"]
+        questions:["Was hat sich in den letzten Monaten verändert?","Welche Entwicklung überrascht mich?","Wo sehe ich Potentiale für Wachstum?"]
     },
     systemisch:{
-        name:"🔄 Systemische Perspektiven",
+        name:"🔄 Systemisch",
         color:"#FF9800",
-        questions:["Was würde X über Y sagen?","Welches Problem löst meine Position?","Was würde fehlen, wenn ich nicht da wäre?","Wer profitiert von der aktuellen Konstellation?","Was ist das Symptom, was ist die Ursache?","Wo sind die Loyalitätskonflikte?","Was ist der Auftrag des Systems?"]
+        questions:["Was würde X über Y sagen?","Welches Problem löst meine Position?","Was würde fehlen, wenn ich nicht da wäre?"]
     },
     vision:{
-        name:"✨ Visionen & Wünsche",
+        name:"✨ Vision",
         color:"#9C27B0",
-        questions:["Wie sähe unser ideales Team aus?","Was ist mein größter Wunsch für uns?","Woran würden wir merken, dass es besser ist?","Was wäre das Kleinste, was sich ändern müsste?","Wenn ein Wunder geschähe - was wäre anders?","Welche Atmosphäre wünsche ich mir?","Was sollen andere über uns sagen?"]
+        questions:["Wie sähe unser ideales Team aus?","Was ist mein größter Wunsch für uns?","Woran würden wir merken, dass es besser ist?"]
     }
 };
 
 const SCALING_QUESTIONS=[
     "Auf einer Skala von 1-10: Wie zufrieden bist du mit deiner Position im Team?",
     "Wie stark fühlst du dich vom Team unterstützt? (1-10)",
-    "Wie klar sind dir deine Aufgaben im Team? (1-10)",
-    "Wie gut kannst du deine Stärken einbringen? (1-10)",
-    "Wie wohl fühlst du dich in der Teamdynamik? (1-10)"
+    "Wie klar sind dir deine Aufgaben im Team? (1-10)"
 ];
 
 const MIRACLE_QUESTIONS=[
     "Angenommen, über Nacht geschähe ein Wunder und unser Team wäre perfekt - woran würden wir das morgen früh merken?",
-    "Wenn alle Hindernisse verschwänden - wie würden wir dann zusammenarbeiten?",
-    "Stellen Sie sich vor, unser Team wird in einem Jahr als Vorbild genannt - was ist dann anders?"
+    "Wenn alle Hindernisse verschwänden - wie würden wir dann zusammenarbeiten?"
 ];
 
 function init(){
@@ -919,60 +918,67 @@ function init(){
 }
 
 function setupEventListeners(){
-    // Toolbar buttons
-    document.getElementById('btnAddMember').onclick=addMember;
-    document.getElementById('btnAddConnection').onclick=()=>startConnectionCreation(null);
-    document.getElementById('btnReflexion').onclick=showReflexionModal;
-    document.getElementById('btnMenu').onclick=openDrawer('menuDrawer');
+    // Toolbar
+    document.getElementById('btnAddMember').addEventListener('click',addMember);
+    document.getElementById('btnAddConnection').addEventListener('click',()=>startConnectionCreation(null));
+    document.getElementById('btnReflexion').addEventListener('click',showReflexionModal);
+    document.getElementById('btnMenu').addEventListener('click',()=>openDrawer('menuDrawer'));
     
-    // Menu drawer buttons
-    document.getElementById('btnUndo').onclick=undo;
-    document.getElementById('btnRedo').onclick=redo;
-    document.getElementById('btnShowReflexions').onclick=()=>{closeAllDrawers();openDrawer('reflexionsDrawer');updateReflexionsList();};
-    document.getElementById('btnShowStats').onclick=()=>{closeAllDrawers();openDrawer('statsDrawer');updateStats();};
-    document.getElementById('btnReset').onclick=resetApp;
-    document.getElementById('btnCloseMenu').onclick=closeAllDrawers;
-    document.getElementById('btnCloseReflexions').onclick=closeAllDrawers;
-    document.getElementById('btnCloseStats').onclick=closeAllDrawers;
+    // Menu drawer
+    document.getElementById('btnUndo').addEventListener('click',undo);
+    document.getElementById('btnRedo').addEventListener('click',redo);
+    document.getElementById('btnShowReflexions').addEventListener('click',()=>{closeAllDrawers();openDrawer('reflexionsDrawer');updateReflexionsList();});
+    document.getElementById('btnShowStats').addEventListener('click',()=>{closeAllDrawers();openDrawer('statsDrawer');updateStats();});
+    document.getElementById('btnReset').addEventListener('click',resetApp);
+    document.getElementById('btnCloseMenu').addEventListener('click',closeAllDrawers);
+    document.getElementById('btnCloseReflexions').addEventListener('click',closeAllDrawers);
+    document.getElementById('btnCloseStats').addEventListener('click',closeAllDrawers);
     
-    // Overlay closes drawer
-    document.getElementById('menuOverlay').onclick=closeAllDrawers;
+    // Overlay
+    document.getElementById('drawerOverlay').addEventListener('click',closeAllDrawers);
     
-    // Canvas touch events
+    // Canvas touch
     const canvas=document.getElementById('canvas');
     canvas.addEventListener('touchstart',onTouchStart,{passive:false});
     canvas.addEventListener('touchmove',onTouchMove,{passive:false});
     canvas.addEventListener('touchend',onTouchEnd,{passive:false});
     canvas.addEventListener('touchcancel',onTouchEnd,{passive:false});
     
-    // Context menu buttons
+    // Global click to hide context menus
+    document.addEventListener('click',(e)=>{
+        if(!e.target.closest('.context-menu')){
+            hideAllContextMenus();
+        }
+    });
+    
+    // Context menus
     document.querySelectorAll('#memberContextMenu .context-item').forEach(el=>{
-        el.onclick=function(){
+        el.addEventListener('click',function(){
             const action=this.getAttribute('data-action');
             hideAllContextMenus();
             if(!selectedMember)return;
             if(action==='renameMember')renameMember(selectedMember);
-            else if(action==='changeStress')showStressModal(selectedMember);
             else if(action==='markAsSelf')markAsSelf(selectedMember);
             else if(action==='editNotes')editNotes(selectedMember);
+            else if(action==='addConnection')startConnectionCreation(selectedMember);
             else if(action==='deleteMember')deleteMember(selectedMember);
-        };
+        });
     });
     
     document.querySelectorAll('#connectionContextMenu .context-item').forEach(el=>{
-        el.onclick=function(){
+        el.addEventListener('click',function(){
             const action=this.getAttribute('data-action');
             hideAllContextMenus();
             if(!selectedConnection)return;
             if(action==='changeEmoji')showEmojiModal();
             else if(action==='changeColor')showColorModal();
             else if(action==='deleteConnection')deleteConnection(selectedConnection);
-        };
+        });
     });
     
-    // Emoji selector
+    // Emoji/Color
     document.querySelectorAll('.emoji-option').forEach(el=>{
-        el.onclick=function(){
+        el.addEventListener('click',function(){
             const emoji=this.getAttribute('data-emoji');
             if(selectedConnection){
                 selectedConnection.emoji=emoji;
@@ -980,15 +986,14 @@ function setupEventListeners(){
                 saveState();
                 saveToLocalStorage();
             }
-            document.getElementById('emojiModal').style.display='none';
+            closeModal('emojiModal');
             showNotification('😀 Emoji geändert');
-        };
+        });
     });
-    document.getElementById('btnCloseEmoji').onclick=()=>document.getElementById('emojiModal').style.display='none';
+    document.getElementById('btnCloseEmoji').addEventListener('click',()=>closeModal('emojiModal'));
     
-    // Color selector
     document.querySelectorAll('.color-option').forEach(el=>{
-        el.onclick=function(){
+        el.addEventListener('click',function(){
             const color=this.getAttribute('data-color');
             if(selectedConnection){
                 selectedConnection.color=color;
@@ -996,38 +1001,38 @@ function setupEventListeners(){
                 saveState();
                 saveToLocalStorage();
             }
-            document.getElementById('colorModal').style.display='none';
+            closeModal('colorModal');
             showNotification('🎨 Farbe geändert');
-        };
+        });
     });
-    document.getElementById('btnCloseColor').onclick=()=>document.getElementById('colorModal').style.display='none';
+    document.getElementById('btnCloseColor').addEventListener('click',()=>closeModal('colorModal'));
     
-    // Reflexion modal
-    document.getElementById('btnNextReflexion').onclick=nextReflexion;
-    document.getElementById('btnOtherCategory').onclick=otherCategory;
-    document.getElementById('btnCloseReflexionModal').onclick=()=>{
+    // Reflexion
+    document.getElementById('btnNextReflexion').addEventListener('click',nextReflexion);
+    document.getElementById('btnOtherCategory').addEventListener('click',otherCategory);
+    document.getElementById('btnCloseReflexionModal').addEventListener('click',()=>{
         autoSaveCurrentReflexion();
-        document.getElementById('reflexionModal').style.display='none';
-    };
+        closeModal('reflexionModal');
+    });
     
     // Connection modal
-    document.getElementById('btnCreateConnection').onclick=createConnection;
-    document.getElementById('btnCancelConnection').onclick=()=>document.getElementById('connectionModal').style.display='none';
+    document.getElementById('btnCreateConnection').addEventListener('click',createConnection);
+    document.getElementById('btnCancelConnection').addEventListener('click',()=>closeModal('connectionModal'));
     
-    // Simple input modal
-    document.getElementById('btnSimpleInputOK').onclick=function(){
+    // Simple input
+    document.getElementById('btnSimpleInputOK').addEventListener('click',function(){
         if(window.simpleInputCallback){
             const val=document.getElementById('simpleTextareaField').style.display!=='none'?
                 document.getElementById('simpleTextareaField').value:
                 document.getElementById('simpleInputField').value;
             window.simpleInputCallback(val);
         }
-        document.getElementById('simpleInputModal').style.display='none';
-    };
-    document.getElementById('btnSimpleInputCancel').onclick=()=>document.getElementById('simpleInputModal').style.display='none';
+        closeModal('simpleInputModal');
+    });
+    document.getElementById('btnSimpleInputCancel').addEventListener('click',()=>closeModal('simpleInputModal'));
     
     // Stress modal
-    document.getElementById('btnCloseStress').onclick=()=>document.getElementById('stressModal').style.display='none';
+    document.getElementById('btnCloseStress').addEventListener('click',()=>closeModal('stressModal'));
 }
 
 // ========== TOUCH HANDLING ==========
@@ -1037,36 +1042,60 @@ function onTouchStart(e){
         // Two-finger pan
         e.preventDefault();
         isTwoFingerPan=true;
+        isDragging=false;
         const touch1=e.touches[0];
         const touch2=e.touches[1];
-        const midX=(touch1.clientX+touch2.clientX)/2;
-        const midY=(touch1.clientY+touch2.clientY)/2;
-        lastTouchPos={x:midX,y:midY};
+        initialTouches={
+            x:(touch1.clientX+touch2.clientX)/2,
+            y:(touch1.clientY+touch2.clientY)/2
+        };
     }else if(e.touches.length===1){
         const touch=e.touches[0];
-        touchStartPos={x:touch.clientX,y:touch.clientY};
-        lastTouchPos={x:touch.clientX,y:touch.clientY};
-        touchStartTime=Date.now();
+        const target=e.target;
         
-        // Check if touching a member
-        const target=getMemberAtTouch(touch);
-        if(target){
-            longPressTarget=target;
-            longPressTimer=setTimeout(()=>{
-                // Long press detected
-                showMemberContextMenu(target);
-                longPressTarget=null;
-            },500);
-        }else{
-            // Check if touching connection emoji
-            const connTarget=getConnectionAtTouch(touch);
-            if(connTarget){
-                longPressTarget=connTarget;
-                longPressTimer=setTimeout(()=>{
-                    showConnectionContextMenu(connTarget);
-                    longPressTarget=null;
-                },500);
+        // Check if tapping member menu button
+        if(target.classList.contains('member-menu-btn')){
+            e.preventDefault();
+            const memberId=parseInt(target.closest('.member').getAttribute('data-id'));
+            selectedMember=members.find(m=>m.id===memberId);
+            showMemberContextMenu();
+            return;
+        }
+        
+        // Check if tapping stress indicator
+        if(target.classList.contains('stress-indicator')){
+            e.preventDefault();
+            const memberId=parseInt(target.closest('.member').getAttribute('data-id'));
+            const member=members.find(m=>m.id===memberId);
+            if(member)showStressModal(member);
+            return;
+        }
+        
+        // Check if tapping connection emoji
+        if(target.classList.contains('connection-emoji')){
+            e.preventDefault();
+            const connId=parseInt(target.getAttribute('data-conn-id'));
+            selectedConnection=connections.find(c=>c.id===connId);
+            if(selectedConnection)showConnectionContextMenu();
+            return;
+        }
+        
+        // Check if tapping member (for drag)
+        const memberEl=target.closest('.member');
+        if(memberEl){
+            e.preventDefault();
+            const memberId=parseInt(memberEl.getAttribute('data-id'));
+            draggedMember=members.find(m=>m.id===memberId);
+            if(draggedMember){
+                const canvasRect=document.getElementById('canvas').getBoundingClientRect();
+                touchStartPos={
+                    x:touch.clientX-canvasRect.left-panOffset.x-draggedMember.x,
+                    y:touch.clientY-canvasRect.top-panOffset.y-draggedMember.y
+                };
+                memberEl.classList.add('dragging');
+                isDragging=true;
             }
+            return;
         }
     }
 }
@@ -1075,138 +1104,52 @@ function onTouchMove(e){
     e.preventDefault();
     
     if(e.touches.length===2 && isTwoFingerPan){
-        // Two-finger pan
         const touch1=e.touches[0];
         const touch2=e.touches[1];
         const midX=(touch1.clientX+touch2.clientX)/2;
         const midY=(touch1.clientY+touch2.clientY)/2;
         
-        if(lastTouchPos){
-            const dx=midX-lastTouchPos.x;
-            const dy=midY-lastTouchPos.y;
+        if(initialTouches){
+            const dx=midX-initialTouches.x;
+            const dy=midY-initialTouches.y;
             panOffset.x+=dx;
             panOffset.y+=dy;
             applyPan();
+            initialTouches={x:midX,y:midY};
         }
-        
-        lastTouchPos={x:midX,y:midY};
-        
-        // Cancel long press
-        if(longPressTimer){
-            clearTimeout(longPressTimer);
-            longPressTimer=null;
-        }
-    }else if(e.touches.length===1 && !isTwoFingerPan){
+    }else if(e.touches.length===1 && draggedMember && isDragging){
         const touch=e.touches[0];
+        const canvas=document.getElementById('canvas');
+        const canvasRect=canvas.getBoundingClientRect();
         
-        if(longPressTarget && longPressTarget.member){
-            // Dragging a member
-            const member=longPressTarget.member;
-            const canvas=document.getElementById('canvas');
-            const canvasRect=canvas.getBoundingClientRect();
-            
-            let newX=touch.clientX-canvasRect.left-panOffset.x-55;
-            let newY=touch.clientY-canvasRect.top-panOffset.y-55;
-            
-            const maxX=canvasRect.width-110;
-            const maxY=canvasRect.height-110;
-            
-            newX=Math.max(0,Math.min(newX,maxX));
-            newY=Math.max(0,Math.min(newY,maxY));
-            
-            member.x=newX;
-            member.y=newY;
-            
-            // Mark as dragging
-            if(!draggedMember){
-                draggedMember=member;
-                const memberEl=document.querySelector(`.member[data-id="${member.id}"]`);
-                if(memberEl)memberEl.classList.add('dragging');
-            }
-            
-            render();
-        }
+        let newX=touch.clientX-canvasRect.left-panOffset.x-touchStartPos.x;
+        let newY=touch.clientY-canvasRect.top-panOffset.y-touchStartPos.y;
         
-        // Check if moved too much to cancel long press
-        if(touchStartPos && longPressTimer){
-            const dx=Math.abs(touch.clientX-touchStartPos.x);
-            const dy=Math.abs(touch.clientY-touchStartPos.y);
-            if(dx>10 || dy>10){
-                clearTimeout(longPressTimer);
-                longPressTimer=null;
-            }
-        }
+        const maxX=canvasRect.width-110;
+        const maxY=canvasRect.height-110;
+        
+        newX=Math.max(0,Math.min(newX,maxX));
+        newY=Math.max(0,Math.min(newY,maxY));
+        
+        draggedMember.x=newX;
+        draggedMember.y=newY;
+        render();
     }
 }
 
 function onTouchEnd(e){
-    if(longPressTimer){
-        clearTimeout(longPressTimer);
-        longPressTimer=null;
-    }
-    
-    if(draggedMember){
+    if(draggedMember && isDragging){
         const memberEl=document.querySelector(`.member[data-id="${draggedMember.id}"]`);
         if(memberEl)memberEl.classList.remove('dragging');
-        draggedMember=null;
         saveState();
         saveToLocalStorage();
+        draggedMember=null;
     }
     
     isTwoFingerPan=false;
-    longPressTarget=null;
+    isDragging=false;
     touchStartPos=null;
-    lastTouchPos=null;
-}
-
-function getMemberAtTouch(touch){
-    const canvas=document.getElementById('canvas');
-    const canvasRect=canvas.getBoundingClientRect();
-    const x=touch.clientX-canvasRect.left-panOffset.x;
-    const y=touch.clientY-canvasRect.top-panOffset.y;
-    
-    for(let member of members){
-        const dx=x-(member.x+55);
-        const dy=y-(member.y+55);
-        const dist=Math.sqrt(dx*dx+dy*dy);
-        if(dist<=55){
-            return {member:member,x:x,y:y};
-        }
-    }
-    return null;
-}
-
-function getConnectionAtTouch(touch){
-    const canvas=document.getElementById('canvas');
-    const canvasRect=canvas.getBoundingClientRect();
-    const x=touch.clientX-canvasRect.left-panOffset.x;
-    const y=touch.clientY-canvasRect.top-panOffset.y;
-    
-    for(let conn of connections){
-        const from=members.find(m=>m.id===conn.from);
-        const to=members.find(m=>m.id===conn.to);
-        if(from && to){
-            const midX=(from.x+to.x)/2+55;
-            const midY=(from.y+to.y)/2+55;
-            const dx=x-midX;
-            const dy=y-midY;
-            const dist=Math.sqrt(dx*dx+dy*dy);
-            if(dist<=25){
-                return conn;
-            }
-        }
-    }
-    return null;
-}
-
-function showMemberContextMenu(target){
-    selectedMember=target.member;
-    document.getElementById('memberContextMenu').style.display='block';
-}
-
-function showConnectionContextMenu(conn){
-    selectedConnection=conn;
-    document.getElementById('connectionContextMenu').style.display='block';
+    initialTouches=null;
 }
 
 // ========== PAN ==========
@@ -1251,6 +1194,7 @@ function render(){
             emojiDiv.style.left=midX+'px';
             emojiDiv.style.top=midY+'px';
             emojiDiv.textContent=conn.emoji;
+            emojiDiv.setAttribute('data-conn-id',conn.id);
             canvas.appendChild(emojiDiv);
         }
     });
@@ -1272,6 +1216,11 @@ function render(){
         stressDiv.className='stress-indicator';
         stressDiv.textContent=getStressEmoji(member.stress)+' '+member.stress+'/5';
         
+        const menuBtn=document.createElement('div');
+        menuBtn.className='member-menu-btn';
+        menuBtn.textContent='⋮';
+        
+        div.appendChild(menuBtn);
         div.appendChild(nameDiv);
         div.appendChild(stressDiv);
         
@@ -1401,7 +1350,7 @@ function markAsSelf(member){
 function showStressModal(member){
     selectedMemberForStress=member;
     document.getElementById('stressMemberName').textContent=member.name;
-    document.getElementById('stressModal').style.display='flex';
+    openModal('stressModal');
     updateStressButtons();
 }
 
@@ -1473,10 +1422,9 @@ function startConnectionCreation(fromMember){
     
     if(fromMember){
         fromSelect.value=fromMember.id;
-        document.getElementById('connectionPromptText').textContent='Verbindung von '+fromMember.name+' zu:';
     }
     
-    modal.style.display='flex';
+    openModal('connectionModal');
 }
 
 function createConnection(){
@@ -1506,7 +1454,7 @@ function createConnection(){
         color:'#4CAF50'
     });
     
-    document.getElementById('connectionModal').style.display='none';
+    closeModal('connectionModal');
     render();
     saveState();
     saveToLocalStorage();
@@ -1523,12 +1471,20 @@ function deleteConnection(conn){
     }
 }
 
+function showConnectionContextMenu(){
+    document.getElementById('connectionContextMenu').style.display='block';
+}
+
+function showMemberContextMenu(){
+    document.getElementById('memberContextMenu').style.display='block';
+}
+
 function showEmojiModal(){
-    document.getElementById('emojiModal').style.display='flex';
+    openModal('emojiModal');
 }
 
 function showColorModal(){
-    document.getElementById('colorModal').style.display='flex';
+    openModal('colorModal');
 }
 
 // ========== REFLEXION ==========
@@ -1542,7 +1498,7 @@ function showReflexionModal(){
     currentQuestionType=rand<0.6?'text':(rand<0.85?'scaling':'miracle');
     
     displayCurrentReflexion();
-    document.getElementById('reflexionModal').style.display='flex';
+    openModal('reflexionModal');
 }
 
 function displayCurrentReflexion(){
@@ -1562,15 +1518,18 @@ function displayCurrentReflexion(){
         question=SCALING_QUESTIONS[Math.floor(Math.random()*SCALING_QUESTIONS.length)];
         document.getElementById('reflexionQuestion').textContent=question;
         let html='<div class="scaling-bar">';
-        for(let i=1;i<=5;i++){
+        for(let i=1;i<=3;i++){
             html+=`<button class="btn scaling-btn${i===currentScalingValue?' active':''}" onclick="selectScaling(${i})">${i}</button>`;
         }
-        html+='</div>';
-        html+='<div class="scaling-bar">';
-        for(let i=6;i<=10;i++){
+        html+='</div><div class="scaling-bar">';
+        for(let i=4;i<=6;i++){
             html+=`<button class="btn scaling-btn${i===currentScalingValue?' active':''}" onclick="selectScaling(${i})">${i}</button>`;
         }
-        html+='</div>';
+        html+='</div><div class="scaling-bar">';
+        for(let i=7;i<=9;i++){
+            html+=`<button class="btn scaling-btn${i===currentScalingValue?' active':''}" onclick="selectScaling(${i})">${i}</button>`;
+        }
+        html+='</div><div class="scaling-bar"><button class="btn scaling-btn'+(10===currentScalingValue?' active':'')+'" onclick="selectScaling(10)">10</button><div style="grid-column:span 2;"></div></div>';
         html+='<div class="scaling-labels"><span>niedrig</span><span>hoch</span></div>';
         document.getElementById('reflexionInput').innerHTML=html;
     }else{
@@ -1603,7 +1562,8 @@ function setupTextAutoSave(){
 function selectScaling(value){
     currentScalingValue=value;
     document.querySelectorAll('#reflexionInput .scaling-btn').forEach((btn,i)=>{
-        if(i+1===value){
+        const btnVal=parseInt(btn.textContent);
+        if(btnVal===value){
             btn.classList.add('active');
         }else{
             btn.classList.remove('active');
@@ -1705,7 +1665,7 @@ function updateReflexionsList(){
 // ========== UI HELPERS ==========
 
 function openDrawer(drawerId){
-    document.getElementById('menuOverlay').style.display='block';
+    document.getElementById('drawerOverlay').style.display='block';
     const drawer=document.getElementById(drawerId);
     drawer.style.display='block';
     setTimeout(()=>{
@@ -1714,13 +1674,21 @@ function openDrawer(drawerId){
 }
 
 function closeAllDrawers(){
-    document.getElementById('menuOverlay').style.display='none';
+    document.getElementById('drawerOverlay').style.display='none';
     document.querySelectorAll('.drawer').forEach(drawer=>{
         drawer.classList.remove('open');
         setTimeout(()=>{
             drawer.style.display='none';
         },300);
     });
+}
+
+function openModal(modalId){
+    document.getElementById(modalId).style.display='flex';
+}
+
+function closeModal(modalId){
+    document.getElementById(modalId).style.display='none';
 }
 
 function hideAllContextMenus(){
@@ -1745,7 +1713,7 @@ function showSimpleInput(title,placeholder,isTextarea,callback){
         document.getElementById('simpleInputField').value='';
     }
     
-    document.getElementById('simpleInputModal').style.display='flex';
+    openModal('simpleInputModal');
 }
 
 function showNotification(message){
