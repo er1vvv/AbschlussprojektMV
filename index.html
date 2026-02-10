@@ -336,6 +336,7 @@
             transition: transform 0.3s ease;
             overflow-y: auto;
             color: white;
+            overscroll-behavior: contain;
         }
         .drawer.open {
             transform: translateY(0);
@@ -976,7 +977,7 @@
     </div>
 
     <script>
-const APP_VERSION="5.4.9-M-FIXED";
+const APP_VERSION="5.4.9-M-STABLE";
 
 // Core State
 let members=[],connections=[],snapshots=[],reflexionAnswers=[],sessions=[],history=[],historyIndex=-1;
@@ -999,6 +1000,9 @@ let isDragging=false;
 // Auto-Save State
 let autoSaveTimer=null;
 let currentReflexionDraft=null;
+
+// Drawer State
+let isDrawerOpen=false;
 
 const REFLEXIONS_SYSTEM={
     selbstreflexion:{
@@ -1050,38 +1054,41 @@ function init(){
 }
 
 function setupEventListeners(){
-    // Toolbar
-    document.getElementById('btnAddMember').addEventListener('click',addMember);
-    document.getElementById('btnAddConnection').addEventListener('click',()=>startConnectionCreation(null));
-    document.getElementById('btnReflexion').addEventListener('click',showReflexionModal);
-    document.getElementById('btnMenu').addEventListener('click',()=>openDrawer('menuDrawer'));
+    // Toolbar - mit stopPropagation
+    document.getElementById('btnAddMember').addEventListener('click',(e)=>{e.stopPropagation();addMember();});
+    document.getElementById('btnAddConnection').addEventListener('click',(e)=>{e.stopPropagation();startConnectionCreation(null);});
+    document.getElementById('btnReflexion').addEventListener('click',(e)=>{e.stopPropagation();showReflexionModal();});
+    document.getElementById('btnMenu').addEventListener('click',(e)=>{e.stopPropagation();openDrawer('menuDrawer');});
     
     // Position mode
     document.getElementById('cancelPositionBtn').addEventListener('click',cancelPositionMode);
     
-    // Menu drawer
-    document.getElementById('btnUndo').addEventListener('click',undo);
-    document.getElementById('btnRedo').addEventListener('click',redo);
-    document.getElementById('btnShowReflexions').addEventListener('click',()=>{closeAllDrawers();openDrawer('reflexionsDrawer');updateReflexionsList();});
-    document.getElementById('btnShowStats').addEventListener('click',()=>{closeAllDrawers();openDrawer('statsDrawer');updateStats();});
-    document.getElementById('btnReset').addEventListener('click',resetApp);
-    document.getElementById('btnCloseMenu').addEventListener('click',closeAllDrawers);
-    document.getElementById('btnCloseReflexions').addEventListener('click',closeAllDrawers);
-    document.getElementById('btnCloseStats').addEventListener('click',closeAllDrawers);
+    // Menu drawer - mit stopPropagation
+    document.getElementById('btnUndo').addEventListener('click',(e)=>{e.stopPropagation();undo();});
+    document.getElementById('btnRedo').addEventListener('click',(e)=>{e.stopPropagation();redo();});
+    document.getElementById('btnShowReflexions').addEventListener('click',(e)=>{e.stopPropagation();closeAllDrawers();openDrawer('reflexionsDrawer');updateReflexionsList();});
+    document.getElementById('btnShowStats').addEventListener('click',(e)=>{e.stopPropagation();closeAllDrawers();openDrawer('statsDrawer');updateStats();});
+    document.getElementById('btnReset').addEventListener('click',(e)=>{e.stopPropagation();resetApp();});
+    document.getElementById('btnCloseMenu').addEventListener('click',(e)=>{e.stopPropagation();closeAllDrawers();});
+    document.getElementById('btnCloseReflexions').addEventListener('click',(e)=>{e.stopPropagation();closeAllDrawers();});
+    document.getElementById('btnCloseStats').addEventListener('click',(e)=>{e.stopPropagation();closeAllDrawers();});
     
-    // Overlay - NUR bei direktem Tap auf Overlay, NICHT bei Drawer-Content
+    // Overlay - NUR bei direktem Click auf Overlay
     document.getElementById('drawerOverlay').addEventListener('click',(e)=>{
         if(e.target.id==='drawerOverlay'){
             closeAllDrawers();
         }
     });
     
-    // Verhindere dass Drawer-Touches zum Overlay propagieren
+    // Verhindere Event-Propagation von Drawern
     document.querySelectorAll('.drawer').forEach(drawer=>{
         drawer.addEventListener('touchstart',(e)=>{
             e.stopPropagation();
         });
         drawer.addEventListener('click',(e)=>{
+            e.stopPropagation();
+        });
+        drawer.addEventListener('touchend',(e)=>{
             e.stopPropagation();
         });
     });
@@ -1093,18 +1100,19 @@ function setupEventListeners(){
     canvas.addEventListener('touchend',onTouchEnd,{passive:false});
     canvas.addEventListener('touchcancel',onTouchEnd,{passive:false});
     
-    // Global click to hide context menus
+    // Global click to hide context menus - NUR wenn kein Drawer offen
     document.addEventListener('click',(e)=>{
-        if(!e.target.closest('.context-menu')){
+        if(!isDrawerOpen && !e.target.closest('.context-menu')){
             hideAllContextMenus();
         }
     });
     
     // Member context menu
     document.querySelectorAll('#memberContextMenu .context-item').forEach(el=>{
-        el.addEventListener('click',function(){
+        el.addEventListener('click',function(e){
+            e.stopPropagation();
             const action=this.getAttribute('data-action');
-            if(!action)return; // For stress menu item
+            if(!action)return;
             hideAllContextMenus();
             if(!selectedMember)return;
             if(action==='changePosition')startPositionMode(selectedMember);
@@ -1141,7 +1149,8 @@ function setupEventListeners(){
     
     // Connection context menu
     document.querySelectorAll('#connectionContextMenu .context-item').forEach(el=>{
-        el.addEventListener('click',function(){
+        el.addEventListener('click',function(e){
+            e.stopPropagation();
             const action=this.getAttribute('data-action');
             hideAllContextMenus();
             if(!selectedConnection)return;
@@ -1853,6 +1862,7 @@ function updateReflexionsList(){
 // ========== UI HELPERS ==========
 
 function openDrawer(drawerId){
+    isDrawerOpen=true;
     document.getElementById('drawerOverlay').style.display='block';
     const drawer=document.getElementById(drawerId);
     drawer.style.display='block';
@@ -1862,6 +1872,7 @@ function openDrawer(drawerId){
 }
 
 function closeAllDrawers(){
+    isDrawerOpen=false;
     document.getElementById('drawerOverlay').style.display='none';
     document.querySelectorAll('.drawer').forEach(drawer=>{
         drawer.classList.remove('open');
